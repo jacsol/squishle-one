@@ -43,6 +43,7 @@ input[type=text]{width:100%;min-height:48px;border-radius:12px;border:1px solid 
 .dev .row{display:flex;flex-wrap:wrap;gap:6px}
 .dev button{min-height:40px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink);font:inherit;font-size:14px;padding:6px 10px;cursor:pointer}
 .dev pre{white-space:pre-wrap;word-break:break-all;font-size:11px;color:var(--mute);margin:8px 0 0}
+.say{min-height:1.6em;text-align:center;font-style:italic;margin:8px 0 2px}
 /* animation */
 .idle{transform-box:fill-box;transform-origin:50% 100%;animation:idle 3.2s ease-in-out infinite}
 .wob{transform-box:fill-box;transform-origin:50% 100%;animation:wob var(--wob,1.8s) ease-in-out infinite}
@@ -72,7 +73,7 @@ input[type=text]{width:100%;min-height:48px;border-radius:12px;border:1px solid 
 "use strict";
 var $=function(s){return document.querySelector(s)};
 var KEY="squishleOne.v1";           // own save key: never the same as Squishle v15.2
-var CFG={NUDGE:0.2,QUIZ:0.33,MAXNAME:12};
+var CFG={NUDGE:0.2,QUIZ:0.33,MAXNAME:12,GAP:4*3600*1000,CAP:2,MUT:1/6};   // GAP = hours between choices, CAP = choices per calendar day, MUT = mutation chance per growth (first test round)
 var STAGES=["Egg","Baby","Child","Teen","Adult"];
 var SCALE=[0.8,0.62,0.76,0.9,1];
 var LIMCAP=[0,0,0.4,0.75,1];
@@ -101,6 +102,26 @@ var PERS=[
 ];
 var NQ=VIBE.length+PERS.length;
 var HI=["Hi!","Boop!","Again!","Yay!","Hehe!","Hello!"];
+var UP_AT={1:2,2:6,3:10};   // cumulative number of choices at which baby, child and teen end
+// Daily choices. "a" = curious / kind, "b" = cautious / ambitious. Each day: one curious-or-cautious choice, then one kind-or-ambitious choice.
+var CHOICES={
+ cp:[
+  {s:"A hole in the garden fence",a:{t:"Squeeze through",l:"I squeezed through and found a whole new garden!"},b:{t:"Peek through first",l:"I peeked first. I like knowing what's there."}},
+  {s:"A strange hum from the cupboard",a:{t:"Open the door",l:"I opened it! Something was glowing in there."},b:{t:"Listen from outside",l:"I listened carefully and worked out what it was."}},
+  {s:"A puddle with a ripple in it",a:{t:"Poke it",l:"I poked it. The ripples went on and on!"},b:{t:"Watch from the edge",l:"I watched the ripples from the edge. So pretty."}},
+  {s:"Two paths in the woods",a:{t:"Take the unknown one",l:"I took the winding path and found a hidden hill."},b:{t:"Take the path you know",l:"I went my usual way and found my favourite spot."}},
+  {s:"A box turns up at the door",a:{t:"Rip it open",l:"I tore it open. Surprise!"},b:{t:"Check it over first",l:"I checked it all over, then opened it slowly."}},
+  {s:"Rustling in the bushes",a:{t:"Go and look",l:"I crept closer. It was a hedgehog!"},b:{t:"Wait for it to come out",l:"I waited, and a hedgehog came out to say hello."}}
+ ],
+ ka:[
+  {s:"One big berry",a:{t:"Share it",l:"I split it with a friend. We both giggled."},b:{t:"Save it to grow big",l:"I saved it and felt stronger already."}},
+  {s:"A wobbly tower of blocks",a:{t:"Help a friend with theirs",l:"I steadied a friend's tower. Teamwork!"},b:{t:"Build your own higher",l:"I built mine higher than ever!"}},
+  {s:"A race along the stream",a:{t:"Run with a slow friend",l:"I ran at a friend's pace. The view was lovely."},b:{t:"Run for first place",l:"I ran my fastest and came first!"}},
+  {s:"A tiny bird looks lost",a:{t:"Guide it home",l:"I walked the little bird home."},b:{t:"Keep going to the hilltop",l:"I kept climbing and reached the very top."}},
+  {s:"A game with one prize",a:{t:"Cheer for everyone",l:"I cheered for everyone. Best game ever."},b:{t:"Play to win",l:"I played my hardest and won the prize!"}},
+  {s:"One umbrella, rain coming",a:{t:"Share it",l:"We squeezed under together and stayed dry."},b:{t:"Race to the shelter",l:"I raced to the shelter, dry and proud."}}
+ ]
+};
 
 // ---------- helpers ----------
 function clamp(x){return Math.max(0,Math.min(1,x));}
@@ -260,7 +281,7 @@ function drawCreature(b,n,stage,v,mut,seed,u){
 var G=load();
 function fresh(){return {v:1,phase:"intro",seed:Math.floor(Math.random()*1e9),answers:[],c:null,dev:false};}
 function load(){
-  try{var r=localStorage.getItem(KEY);if(r){var o=JSON.parse(r);if(o&&o.v===1&&o.phase)return o;}}catch(e){}
+  try{var r=localStorage.getItem(KEY);if(r){var o=JSON.parse(r);if(o&&o.v===1&&o.phase){if(o.c){o.c.log=o.c.log||[];o.c.hist=o.c.hist||[];}return o;}}}catch(e){}
   return fresh();
 }
 function save(){try{localStorage.setItem(KEY,JSON.stringify(G));}catch(e){}}
@@ -294,7 +315,7 @@ function reasonFor(answers,res){
 function makeCreature(b,leans,seed,reason){
   var n={};KEYS.forEach(function(k){n[k]=BASE[k];});
   leans.forEach(function(l){DRIVES[l].forEach(function(k){n[k]=clamp(n[k]+CFG.NUDGE*CFG.QUIZ*BLOBS[b].mult[k]);});});
-  return {blob:b,n:n,v:{limb:"stub",topper:"none",eye:"round",pat:"spots"},mut:"none",seed:seed%100000,name:"Squish",born:Date.now(),stage:1,hist:[],quizLeans:leans,reason:reason||""};
+  return {blob:b,n:n,v:{limb:"stub",topper:"none",eye:"round",pat:"spots"},mut:"none",seed:seed%100000,name:"Squish",born:Date.now(),stage:1,hist:[],log:[],quizLeans:leans,reason:reason||""};
 }
 
 // ---------- screens ----------
@@ -307,6 +328,7 @@ function render(){
   if(p==="intro")renderIntro();
   else if(p==="quiz")renderQuiz();
   else if(p==="reveal")renderReveal();
+  else if(G.pending)renderStageUp();
   else renderHome();
   if(G.dev)renderDev();
 }
@@ -371,21 +393,132 @@ function renderReveal(){
     setTimeout(show,1350);
   } else show();
 }
+// ---------- step 2: choices and growing up ----------
+function perm(seed,n){var a=[],i;for(i=0;i<n;i++)a.push(i);var r=rng(seed);for(i=n-1;i>0;i--){var j=Math.floor(r()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}return a;}
+function dayStart(t){var d=new Date(t);d.setHours(0,0,0,0);return d.getTime();}
+function nextChoice(c){
+  var idx=c.hist.length, axis=idx%2===0?"cp":"ka", k=Math.floor(idx/2);
+  var order=perm(c.seed*17+(axis==="cp"?1:2),6);
+  return {axis:axis,sc:CHOICES[axis][order[k%6]],flip:rng(c.seed*29+idx)()<0.5};
+}
+function choiceState(c){
+  if(c.stage>=4)return {mode:"adult"};
+  if(G.fast)return {mode:"ready"};
+  var now=Date.now(),h=c.hist,last=h.length?h[h.length-1].t:0;
+  var ds=dayStart(now),today=0;h.forEach(function(x){if(x.t>=ds)today++;});
+  var until=0;
+  if(today>=CFG.CAP)until=ds+86400000;
+  if(last&&now<last+CFG.GAP)until=Math.max(until,last+CFG.GAP);
+  if(until>now)return {mode:"wait",until:until,capped:today>=CFG.CAP};
+  return {mode:"ready"};
+}
+function fmtWait(ms){
+  var m=Math.max(1,Math.ceil(ms/60000)),h=Math.floor(m/60);
+  return h>0?h+"h "+(m%60)+"m":m+"m";
+}
+function nightShare(c){
+  if(!c.hist.length)return 0;
+  var n=0;c.hist.forEach(function(x){var hr=new Date(x.t).getHours();if(hr>=20||hr<6)n++;});
+  return n/c.hist.length;
+}
+function growUp(c){
+  c.stage++;
+  var L=[],h=c.hist;
+  var cnt=function(a){return h.filter(function(x){return x.a===a;}).length;};
+  var r=rng(c.seed*7+c.stage*131+h.length);
+  if(c.stage===2){
+    L.push("I'm a child now!");
+    var cu=cnt("curious"),ca=cnt("cautious");
+    var wings=cu>ca?true:(ca>cu?false:r()<0.5);
+    c.v.limb=wings?"wings":"long";
+    L.push(wings?"I've got wings! All that exploring paid off.":"My arms and legs grew long and steady. All that careful thinking!");
+  } else if(c.stage===3){
+    L.push("I'm a teen now!");
+    var ki=cnt("kind"),am=cnt("ambitious");
+    var fl=ki>am?true:(am>ki?false:r()<0.5);
+    c.v.topper=fl?"fluff":"horns";
+    L.push(fl?"A fluffy tuft grew on my head. All that kindness!":"Little horns! All that striving paid off.");
+    var night=nightShare(c)>=0.5;
+    c.v.eye=night?"sleepy":"round";
+    L.push(night?"My eyes have gone sleepy. I do love the evenings.":"My eyes are bright and round. I love the daytime.");
+  } else if(c.stage===4){
+    L.push("I'm all grown up!");
+    var par=0;(G.answers||[]).forEach(function(a){par+=a;});
+    c.v.pat=par%2===0?"spots":"stripes";
+    L.push(c.v.pat==="spots"?"My spots are here to stay.":"I've got stripes!");
+  }
+  var rate=G.forceMut?1:(G.mutRate||CFG.MUT);
+  if(c.mut==="none"&&r()<rate){
+    c.mut=["eyes","shimmer","rainbow"][Math.floor(r()*3)];
+    L.push("Something strange stirred in the night...");
+  }
+  G.forceMut=false;
+  L.forEach(function(x){c.log.push({t:Date.now(),k:"grow",x:x});});
+  return L;
+}
+function applyChoice(side){
+  var c=G.c, nc=nextChoice(c), o=nc.sc[side];
+  c.log=c.log||[];c.hist=c.hist||[];
+  var lean=nc.axis==="cp"?(side==="a"?"curious":"cautious"):(side==="a"?"kind":"ambitious");
+  DRIVES[lean].forEach(function(k){c.n[k]=clamp(c.n[k]+CFG.NUDGE*BLOBS[c.blob].mult[k]);});
+  c.hist.push({a:lean,l:o.l,t:Date.now()});
+  c.log.push({t:Date.now(),k:"choice",x:o.l});
+  var lines=null;
+  if(UP_AT[c.stage]&&c.hist.length>=UP_AT[c.stage])lines=growUp(c);
+  return {line:o.l,lines:lines};
+}
+var homeT=null,sayNext=null,popNext=false;
+function takeChoice(side){
+  var c=G.c; if(!c||choiceState(c).mode!=="ready")return;
+  var r=applyChoice(side);
+  G.pending=r.lines?{lines:r.lines,choice:r.line}:null;
+  sayNext=r.lines?null:r.line;popNext=true;
+  save();render();
+}
+function renderStageUp(){
+  var c=G.c,p=G.pending;
+  var body='<p class="mute" style="text-align:center;font-style:italic">“'+esc(p.choice)+'”</p>';
+  p.lines.forEach(function(x,i){body+='<p style="text-align:center;'+(i===0?'font-size:18px;font-weight:600':'')+'">“'+esc(x)+'”</p>';});
+  main.innerHTML='<div class="card">'+artBox()+'<h2 style="margin-top:8px;text-align:center">'+esc(c.name)+' is a '+STAGES[c.stage].toLowerCase()+'!</h2>'+body+'<button class="btn" id="cont">Continue</button></div>';
+  setArt(drawCreature(c.blob,c.n,c.stage,c.v,c.mut,c.seed,"u"));
+  var a=$("#art");a.classList.add("pop");
+  var f=$("#flash");f.classList.remove("go");void f.offsetWidth;f.classList.add("go");
+  $("#cont").addEventListener("click",function(){G.pending=null;save();render();});
+}
 function renderHome(){
-  var c=G.c,B=BLOBS[c.blob];
-  var born=new Date(c.born).toLocaleString(undefined,{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"});
-  main.innerHTML='<div class="card">'+artBox()+
+  clearTimeout(homeT);
+  var c=G.c,B=BLOBS[c.blob],st=choiceState(c);
+  var prog="";
+  if(c.stage<4){var left=UP_AT[c.stage]-c.hist.length;prog="Grows up after "+left+" more choice"+(left===1?"":"s")+".";}
+  var html='<div class="card">'+artBox()+
     '<h2 style="margin-top:8px;text-align:center">'+esc(c.name)+'</h2>'+
     '<p style="text-align:center"><span class="badge">'+esc(B.name)+'</span><span class="badge">'+STAGES[c.stage]+'</span></p>'+
-    '<p class="mute" style="text-align:center">Hatched '+esc(born)+'. Tap '+esc(c.name)+' to say hi.</p></div>'+
-    '<div class="card"><p class="mute">This is step 1 of the prototype: the hatch. Next come the daily choices and growing up. Come back soon.</p></div>';
+    '<div id="say" class="say"></div>'+
+    (prog?'<p class="mute" style="text-align:center;margin:2px 0">'+prog+'</p>':'')+'</div>';
+  if(st.mode==="ready"){
+    var nc=nextChoice(c),f1=nc.flip?"b":"a",f2=nc.flip?"a":"b";
+    html+='<div class="card"><p class="mute" style="margin:0">A choice for '+esc(c.name)+'</p><h2 style="margin-top:2px">'+esc(nc.sc.s)+'</h2><p>What should '+esc(c.name)+' do?</p>'+
+      '<button class="opt" data-s="'+f1+'">'+esc(nc.sc[f1].t)+'</button><button class="opt" data-s="'+f2+'">'+esc(nc.sc[f2].t)+'</button></div>';
+  } else if(st.mode==="wait"){
+    html+='<div class="card"><h2>Come back later</h2><p>'+esc(c.name)+' is resting. '+(st.capped?'That is all for today. ':'')+'The next choice is ready in <b>'+fmtWait(st.until-Date.now())+'</b>.</p>'+
+      '<p class="mute">Tip: set an alarm on your phone so you do not forget.</p></div>';
+    homeT=setTimeout(render,Math.min(Math.max(st.until-Date.now(),0)+500,60000));
+  } else {
+    html+='<div class="card"><h2>All grown up</h2><p>'+esc(c.name)+' is fully grown. Bonding with a friend\'s Squishle to hatch a new egg is coming in a later step.</p></div>';
+  }
+  html+='<div class="card"><p class="mute">Prototype: feeding, playing and the diary come next.</p></div>';
+  main.innerHTML=html;
   setArt(drawCreature(c.blob,c.n,c.stage,c.v,c.mut,c.seed,"h"));
+  if(popNext){popNext=false;var a0=$("#art");a0.classList.add("pop");}
+  if(sayNext){var sy=$("#say");sy.textContent="“"+sayNext+"”";sayNext=null;}
+  main.querySelectorAll(".opt[data-s]").forEach(function(el){el.addEventListener("click",function(){takeChoice(el.dataset.s);});});
   $("#artbox").addEventListener("click",function(){
     var a=$("#art");a.classList.remove("pop");void a.offsetWidth;a.classList.add("pop");
     var b=$("#bubble");b.textContent=HI[Math.floor(Math.random()*HI.length)];b.classList.add("show");
     clearTimeout(renderHome.t);renderHome.t=setTimeout(function(){b.classList.remove("show");},1200);
   });
 }
+document.addEventListener("visibilitychange",function(){if(!document.hidden&&G.phase==="home"&&!G.pending)render();});
 
 // ---------- hidden test panel (tap the title five times) ----------
 var taps=0,tapT=null;
@@ -393,23 +526,52 @@ $("#title").addEventListener("click",function(){
   taps++;clearTimeout(tapT);tapT=setTimeout(function(){taps=0;},2500);
   if(taps>=5){taps=0;G.dev=!G.dev;save();render();}
 });
+function devChoice(){
+  var c=G.c;if(!c||G.phase!=="home"||G.pending||c.stage>=4)return;
+  var r=applyChoice(Math.random()<0.5?"a":"b");
+  G.pending=r.lines?{lines:r.lines,choice:r.line}:null;sayNext=r.lines?null:r.line;popNext=true;save();render();
+}
+function devAuto(){
+  var c=G.c;if(!c||G.phase!=="home"||G.pending)return;
+  while(G.c.stage<4)applyChoice(Math.random()<0.5?"a":"b");
+  G.pending=null;save();render();
+}
+function devLife(b){   // used by the automated checks only
+  var keep=G,seed=Math.floor(Math.random()*1e9);
+  G={v:1,phase:"home",seed:seed,answers:[Math.floor(Math.random()*4),0,0,0,0,0],c:makeCreature(b,[],seed,""),dev:false,fast:true};
+  while(G.c.stage<4)applyChoice(Math.random()<0.5?"a":"b");
+  var out={blob:b,v:G.c.v,mut:G.c.mut,n:G.c.n,choices:G.c.hist.length};
+  G=keep;return out;
+}
 function renderDev(){
   var d=$("#dev");
   var blobBtns=BLOBS.map(function(b,i){return '<button data-b="'+i+'">Hatch as '+b.name+'</button>';}).join("");
   d.innerHTML='<div class="dev"><h3>Test panel</h3><div class="row">'+blobBtns+
+    '<button id="dFast">Fast mode: '+(G.fast?"ON":"off")+'</button>'+
+    '<button id="dChoice">Make a choice for me</button>'+
+    '<button id="dAuto">Auto-play to adult</button>'+
+    '<button id="dForce">Force a mutation at next growth: '+(G.forceMut?"ON":"off")+'</button>'+
+    '<select id="dRate" aria-label="Mutation chance"><option value="0.08333">Mutation 1 in 12</option><option value="0.16667">Mutation 1 in 6</option><option value="1">Mutation always</option></select>'+
     '<button id="dRestart">Erase save and start again</button><button id="dShow">Show save data</button><button id="dClose">Close panel</button></div><pre id="dOut"></pre></div>';
+  var rate=G.mutRate||CFG.MUT;
+  $("#dRate").value=rate>0.5?"1":(rate<0.12?"0.08333":"0.16667");
   d.querySelectorAll("[data-b]").forEach(function(el){
     el.addEventListener("click",function(){
       var b=+el.dataset.b;
-      G.c=makeCreature(b,[],G.seed,"Hatched from the test panel.");G.phase="reveal";G.playHatch=true;save();render();
+      G.c=makeCreature(b,[],G.seed,"Hatched from the test panel.");G.phase="reveal";G.pending=null;G.playHatch=true;save();render();
     });
   });
+  $("#dFast").addEventListener("click",function(){G.fast=!G.fast;save();render();});
+  $("#dChoice").addEventListener("click",devChoice);
+  $("#dAuto").addEventListener("click",devAuto);
+  $("#dForce").addEventListener("click",function(){G.forceMut=!G.forceMut;save();render();});
+  $("#dRate").addEventListener("change",function(e){G.mutRate=parseFloat(e.target.value);save();});
   $("#dRestart").addEventListener("click",function(){var keep=G.dev;wipe();G.dev=keep;save();render();});
   $("#dShow").addEventListener("click",function(){$("#dOut").textContent=JSON.stringify(G);});
   $("#dClose").addEventListener("click",function(){G.dev=false;save();render();});
 }
 
-window.__sq1={G:function(){return G;},pickBlob:pickBlob,VIBE:VIBE,PERS:PERS,BLOBS:BLOBS,draw:drawCreature,KEY:KEY};
+window.__sq1={G:function(){return G;},pickBlob:pickBlob,VIBE:VIBE,PERS:PERS,BLOBS:BLOBS,CHOICES:CHOICES,UP_AT:UP_AT,CFG:CFG,draw:drawCreature,KEY:KEY,devLife:devLife,choiceState:choiceState,nextChoice:nextChoice,render:render};
 render();
 })();
 </script>
