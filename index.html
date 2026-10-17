@@ -3,133 +3,110 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Squishle One look test</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Squishle One</title>
 <style>
 :root{--bg:#fbf7ff;--ink:#2b2340;--mute:#7a7090;--card:#ffffff;--line:#e6dff2;--accent:#7c5cff;--accent-ink:#fff}
 @media (prefers-color-scheme:dark){:root{--bg:#171322;--ink:#f1ecff;--mute:#a79fc0;--card:#221c33;--line:#33294d;--accent:#9d86ff;--accent-ink:#171322}}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;padding:0 16px 40px}
-.wrap{max-width:520px;margin:0 auto}
-h1{font-size:19px;margin:16px 0 2px}
-.sub{color:var(--mute);margin:0 0 12px;font-size:13px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px;margin-bottom:12px}
-#stage{position:relative;aspect-ratio:1/1;width:100%;max-width:420px;margin:0 auto;display:block}
-#stage svg{width:100%;height:100%;display:block}
-#toast{position:absolute;left:8px;right:8px;bottom:6px;text-align:center;font-size:13px;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:999px;padding:5px 10px;opacity:0;transition:opacity .3s;pointer-events:none}
-#toast.show{opacity:1}
-.row{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
-.lbl{font-size:12px;color:var(--mute);margin:10px 0 0;text-transform:uppercase;letter-spacing:.04em}
-button,select{font:inherit;color:var(--ink)}
-.chip{flex:1 1 auto;min-height:40px;padding:6px 10px;border-radius:999px;border:1px solid var(--line);background:var(--card);cursor:pointer}
-.chip.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
-.choice{flex:1 1 45%;min-height:52px;border-radius:14px;border:1px solid var(--line);background:var(--card);cursor:pointer;padding:6px 8px;text-align:center}
-.choice b{display:block}
-.choice small{color:var(--mute);font-size:11px}
-.choice:active{transform:scale(.97)}
-.act{flex:1 1 auto;min-height:44px;border-radius:12px;border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);font-weight:600;cursor:pointer;padding:6px 12px}
-.act.alt{background:var(--card);color:var(--ink);border-color:var(--line)}
-.slider{display:grid;grid-template-columns:70px 1fr 38px;align-items:center;gap:8px;margin:4px 0}
-.slider input{width:100%}
-.slider span:last-child{color:var(--mute);font-size:12px;text-align:right}
-.sel{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
-.sel label{font-size:12px;color:var(--mute);display:block}
-.sel select{width:100%;min-height:38px;border-radius:10px;border:1px solid var(--line);background:var(--card);padding:0 8px}
-details summary{cursor:pointer;font-weight:600;min-height:32px}
-#lineup{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-#lineup div{text-align:center;font-size:12px;color:var(--mute)}
-#lineup svg{width:100%;height:auto;display:block}
-pre{white-space:pre-wrap;font-size:12px;color:var(--mute);margin:0}
-.chk{display:flex;align-items:center;gap:8px;min-height:36px}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;padding:0 16px 40px;min-height:100vh}
+.wrap{max-width:480px;margin:0 auto}
+header{display:flex;align-items:baseline;gap:8px;padding:14px 0 6px;user-select:none;-webkit-user-select:none}
+#title{font-size:18px;margin:0;font-weight:700}
+.tag{font-size:11px;color:var(--mute);border:1px solid var(--line);border-radius:999px;padding:1px 8px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;margin:10px 0}
+h2{font-size:20px;margin:0 0 6px}
+p{margin:6px 0}
+.mute{color:var(--mute);font-size:14px}
+.btn{display:block;width:100%;min-height:50px;border-radius:14px;border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);font:inherit;font-weight:600;cursor:pointer;padding:10px 14px;margin-top:12px}
+.btn.alt{background:var(--card);color:var(--ink);border-color:var(--line)}
+.btn:active{transform:scale(.98)}
+.opt{display:block;width:100%;min-height:52px;text-align:left;border-radius:14px;border:1px solid var(--line);background:var(--card);color:var(--ink);font:inherit;cursor:pointer;padding:10px 14px;margin-top:8px}
+.opt:active{transform:scale(.98);border-color:var(--accent)}
+.prog{font-size:13px;color:var(--mute);text-align:center;margin:2px 0}
+.dots{display:flex;justify-content:center;gap:6px;margin:4px 0 0}
+.dots i{width:8px;height:8px;border-radius:50%;background:var(--line)}
+.dots i.on{background:var(--accent)}
+#artbox{position:relative;width:100%;max-width:340px;aspect-ratio:1/1;margin:0 auto}
+#artbox svg{width:100%;height:100%;display:block}
+#art{width:100%;height:100%}
+#bubble{position:absolute;left:50%;top:4%;transform:translateX(-50%);background:var(--card);border:1px solid var(--line);border-radius:999px;padding:4px 12px;font-size:14px;opacity:0;transition:opacity .25s;pointer-events:none;white-space:nowrap}
+#bubble.show{opacity:1}
+input[type=text]{width:100%;min-height:48px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--ink);font:inherit;padding:8px 12px;margin-top:8px}
+.badge{display:inline-block;font-size:12px;border:1px solid var(--line);border-radius:999px;padding:1px 10px;color:var(--mute);margin-right:6px}
+#flash{position:fixed;inset:0;pointer-events:none;opacity:0;background:radial-gradient(circle at 50% 40%,#fff 0,rgba(255,255,255,.85) 40%,rgba(255,255,255,0) 75%)}
+#flash.go{animation:flash 1s ease-out}
+@keyframes flash{0%{opacity:0}25%{opacity:1}100%{opacity:0}}
+.dev{border:1px dashed var(--line);border-radius:14px;padding:12px;margin-top:14px}
+.dev h3{font-size:14px;margin:0 0 6px}
+.dev .row{display:flex;flex-wrap:wrap;gap:6px}
+.dev button{min-height:40px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink);font:inherit;font-size:14px;padding:6px 10px;cursor:pointer}
+.dev pre{white-space:pre-wrap;word-break:break-all;font-size:11px;color:var(--mute);margin:8px 0 0}
 /* animation */
 .idle{transform-box:fill-box;transform-origin:50% 100%;animation:idle 3.2s ease-in-out infinite}
-.wob{transform-box:fill-box;transform-origin:50% 100%;animation:wob 1.6s ease-in-out infinite}
+.wob{transform-box:fill-box;transform-origin:50% 100%;animation:wob var(--wob,1.8s) ease-in-out infinite}
 @keyframes idle{0%,100%{transform:scale(1,1)}50%{transform:scale(1.03,.97)}}
 @keyframes wob{0%,100%{transform:rotate(-4deg)}50%{transform:rotate(4deg)}}
+#art.shake .wob{animation:shake .16s linear infinite}
+@keyframes shake{0%{transform:rotate(-9deg) translateX(-3px)}50%{transform:rotate(9deg) translateX(3px)}100%{transform:rotate(-9deg) translateX(-3px)}}
 .tw{animation:tw 1.8s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
 @keyframes tw{0%,100%{opacity:.15;transform:scale(.6)}50%{opacity:1;transform:scale(1.1)}}
-#stage.pop{animation:pop .5s ease-out}
-@keyframes pop{0%{transform:scale(1)}30%{transform:scale(1.07) rotate(-2deg)}60%{transform:scale(.97) rotate(2deg)}100%{transform:scale(1)}}
-@media (prefers-reduced-motion:reduce){.idle,.wob,.tw,#stage.pop{animation:none}}
+.pop{animation:pop .5s ease-out}
+@keyframes pop{0%{transform:scale(1)}30%{transform:scale(1.08) rotate(-2deg)}60%{transform:scale(.97) rotate(2deg)}100%{transform:scale(1)}}
+.rise{animation:rise .6s ease-out}
+@keyframes rise{0%{opacity:0;transform:translateY(12px) scale(.9)}100%{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.idle,.wob,.tw,.pop,.rise,#art.shake .wob,#flash.go{animation:none}}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <h1>Squishle One: look test</h1>
-  <p class="sub">Throwaway page to judge the style. A blob drawn by code from six numbers. Nothing here is saved.</p>
-
-  <div class="card">
-    <div id="stage"><div id="art"></div><div id="toast"></div></div>
-    <div class="lbl">Blob</div>
-    <div class="row" id="blobChips"></div>
-    <div class="lbl">Stage</div>
-    <div class="row" id="stageChips"></div>
-  </div>
-
-  <div class="card">
-    <div class="lbl" style="margin-top:0">Make a choice (grows the creature)</div>
-    <div class="row">
-      <button class="choice" data-c="curious"><b>Curious</b><small>eyes, legs</small></button>
-      <button class="choice" data-c="cautious"><b>Cautious</b><small>arms</small></button>
-      <button class="choice" data-c="kind"><b>Kind</b><small>colour</small></button>
-      <button class="choice" data-c="ambitious"><b>Ambitious</b><small>aura, pattern</small></button>
-    </div>
-    <div class="row">
-      <button class="act" id="playBtn">Play a whole life</button>
-      <button class="act alt" id="randBtn">Random creature</button>
-      <button class="act alt" id="resetBtn">Reset</button>
-    </div>
-    <div class="sel">
-      <div><label for="mutSel">Mutation (set by hand)</label>
-        <select id="mutSel"><option value="none">None</option><option value="eyes">Glowing eyes</option><option value="shimmer">Shimmering colour</option><option value="rainbow">Rainbow aura</option></select></div>
-      <div><label for="mutRate">Mutation chance in "Play a life"</label>
-        <select id="mutRate"><option value="0">Off</option><option value="0.0833">1 in 12</option><option value="0.1667" selected>1 in 6</option><option value="1">Always</option></select></div>
-    </div>
-  </div>
-
-  <div class="card">
-    <label class="chk"><input type="checkbox" id="lineChk"> Same choices, all four blobs side by side</label>
-    <div id="lineup" hidden></div>
-  </div>
-
-  <div class="card">
-    <details>
-      <summary>Fine tune the six numbers and variants</summary>
-      <div id="sliders"></div>
-      <div class="sel">
-        <div><label for="vLimb">Limb type</label><select id="vLimb"><option value="stub">Stubby</option><option value="long">Long</option><option value="wings">Wings</option></select></div>
-        <div><label for="vTop">Head topper</label><select id="vTop"><option value="none">None</option><option value="fluff">Fluff</option><option value="horns">Horns</option></select></div>
-        <div><label for="vEye">Eye shape</label><select id="vEye"><option value="round">Round</option><option value="sleepy">Sleepy</option></select></div>
-        <div><label for="vPat">Pattern type</label><select id="vPat"><option value="spots">Spots</option><option value="stripes">Stripes</option></select></div>
-      </div>
-    </details>
-  </div>
-
-  <div class="card"><pre id="readout"></pre></div>
+  <header><h1 id="title">Squishle One</h1><span class="tag">prototype</span></header>
+  <main id="main"></main>
+  <div id="dev"></div>
 </div>
+<div id="flash"></div>
 
 <script>
 (function(){
 "use strict";
 var $=function(s){return document.querySelector(s)};
+var KEY="squishleOne.v1";           // own save key: never the same as Squishle v15.2
+var CFG={NUDGE:0.2,QUIZ:0.33,MAXNAME:12};
 var STAGES=["Egg","Baby","Child","Teen","Adult"];
 var SCALE=[0.8,0.62,0.76,0.9,1];
 var LIMCAP=[0,0,0.4,0.75,1];
 var KEYS=["eyes","arms","legs","aura","colour","pattern"];
 var DRIVES={curious:["eyes","legs"],cautious:["arms"],kind:["colour"],ambitious:["aura","pattern"]};
-var NUDGE=0.2;
 var BASE={eyes:0.1,arms:0.1,legs:0.1,aura:0.1,colour:0.3,pattern:0.1};
 var EGG={rx:0.78,ry:1,k:2,amp:0,ph:0,pear:0.35};
+var GENERIC={name:"Egg",hue:265,sat:45,lig:80,dir:1,mult:{eyes:1,arms:1,legs:1,aura:1,colour:1,pattern:1},shape:EGG};
 var BLOBS=[
- {name:"Pebble",hue:28,sat:42,lig:62,mult:{eyes:0.5,arms:1.5,legs:1.5,aura:0.5,colour:1,pattern:1},shape:{rx:1.12,ry:0.84,k:3,amp:0.03,ph:0.4,pear:0}},
- {name:"Drip",hue:197,sat:62,lig:62,mult:{eyes:1,arms:0.5,legs:0.5,aura:1.5,colour:1.5,pattern:1},shape:{rx:0.9,ry:1,k:2,amp:0.02,ph:0,pear:1}},
- {name:"Spark",hue:48,sat:78,lig:62,mult:{eyes:1.5,arms:1,legs:1,aura:1.5,colour:0.5,pattern:0.5},shape:{rx:1,ry:0.95,k:5,amp:0.05,ph:0.2,pear:0}},
- {name:"Puff",hue:326,sat:62,lig:72,mult:{eyes:1,arms:1,legs:0.5,aura:0.5,colour:1.5,pattern:1.5},shape:{rx:1.04,ry:0.98,k:8,amp:0.045,ph:0,pear:0}}
+ {name:"Pebble",hue:28,sat:42,lig:62,dir:1,line:"Steady and sturdy. It grows strong arms and legs.",mult:{eyes:0.5,arms:1.5,legs:1.5,aura:0.5,colour:1,pattern:1},shape:{rx:1.12,ry:0.84,k:3,amp:0.03,ph:0.4,pear:0}},
+ {name:"Drip",hue:197,sat:62,lig:62,dir:1,line:"Dreamy and glowy. It loves bright colours and a shimmering aura.",mult:{eyes:1,arms:0.5,legs:0.5,aura:1.5,colour:1.5,pattern:1},shape:{rx:0.9,ry:1,k:2,amp:0.02,ph:0,pear:1}},
+ {name:"Spark",hue:48,sat:78,lig:62,dir:-1,line:"Bright-eyed and quick. It lights up easily.",mult:{eyes:1.5,arms:1,legs:1,aura:1.5,colour:0.5,pattern:0.5},shape:{rx:1,ry:0.95,k:5,amp:0.05,ph:0.2,pear:0}},
+ {name:"Puff",hue:326,sat:62,lig:72,dir:1,line:"Soft and cosy. It loves colours and patterns.",mult:{eyes:1,arms:1,legs:0.5,aura:0.5,colour:1.5,pattern:1.5},shape:{rx:1.04,ry:0.98,k:8,amp:0.045,ph:0,pear:0}}
 ];
-var S=fresh(0);
-function fresh(b){return {blob:b,stage:1,n:Object.assign({},BASE),v:{limb:"stub",topper:"none",eye:"round",pat:"spots"},mut:"none",seed:7,hist:[]};}
+// Quiz: four "vibe" questions pick the blob (one point each), two personality questions give a small head start.
+// Option order is rotated so the same blob is never always first.
+var VIBE=[
+ {q:"Pick a place for a free day",o:[{t:"Mountain trail",r:"the mountain trail",b:0},{t:"Beach",r:"the beach",b:1},{t:"City rooftop",r:"the city rooftop",b:2},{t:"Cosy cabin",r:"the cosy cabin",b:3}]},
+ {q:"Pick a sound",o:[{t:"Rain on a window",r:"rain on a window",b:1},{t:"A purring cat",r:"a purring cat",b:3},{t:"Footsteps on gravel",r:"footsteps on gravel",b:0},{t:"Fireworks",r:"fireworks",b:2}]},
+ {q:"Pick a snack",o:[{t:"Popping candy",r:"popping candy",b:2},{t:"Crusty bread",r:"crusty bread",b:0},{t:"Warm cookies",r:"warm cookies",b:3},{t:"Cold lemonade",r:"cold lemonade",b:1}]},
+ {q:"Pick some weather",o:[{t:"Soft snowfall",r:"soft snowfall",b:3},{t:"Thunderstorm",r:"a thunderstorm",b:2},{t:"Misty drizzle",r:"a misty drizzle",b:1},{t:"Crisp clear morning",r:"a crisp clear morning",b:0}]}
+];
+var PERS=[
+ {q:"A door appears in your garden. What do you do?",o:[{t:"Open it straight away",l:"curious"},{t:"Peek from a distance first",l:"cautious"}]},
+ {q:"Your team has a challenge to do. What matters most?",o:[{t:"Everyone having fun",l:"kind"},{t:"Winning",l:"ambitious"}]}
+];
+var NQ=VIBE.length+PERS.length;
+var HI=["Hi!","Boop!","Again!","Yay!","Hehe!","Hello!"];
+
+// ---------- helpers ----------
 function clamp(x){return Math.max(0,Math.min(1,x));}
 function hsl(h,s,l,a){if(a===undefined)a=1;return "hsla("+(((h%360)+360)%360).toFixed(0)+","+Math.max(0,Math.min(100,s)).toFixed(0)+"%,"+Math.max(0,Math.min(100,l)).toFixed(0)+"%,"+a+")";}
 function rng(seed){var a=seed>>>0;return function(){a=(a+0x6D2B79F5)>>>0;var t=a;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296;};}
+function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});}
 function bodyPath(sh,R){
   var pts=[];
   for(var i=0;i<72;i++){
@@ -148,41 +125,41 @@ function star(cx,cy,r,fill,cls,delay){
   var d="M"+cx+","+(cy-r)+" L"+(cx+r*0.28)+","+(cy-r*0.28)+" L"+(cx+r)+","+cy+" L"+(cx+r*0.28)+","+(cy+r*0.28)+" L"+cx+","+(cy+r)+" L"+(cx-r*0.28)+","+(cy+r*0.28)+" L"+(cx-r)+","+cy+" L"+(cx-r*0.28)+","+(cy-r*0.28)+"Z";
   return '<path d="'+d+'" fill="'+fill+'" class="'+cls+'" style="animation-delay:'+delay+'s"/>';
 }
+
+// ---------- the procedural creature (from the approved look test, with the rough edges fixed) ----------
 function drawCreature(b,n,stage,v,mut,seed,u){
-  var B=BLOBS[b], egg=stage===0, R=95*SCALE[stage], cap=LIMCAP[stage];
+  var B=b<0?GENERIC:BLOBS[b], egg=stage===0, R=95*SCALE[stage], cap=LIMCAP[stage];
   var eyeE=n.eyes, armE=Math.min(n.arms,cap), legE=Math.min(n.legs,cap);
-  var hue=B.hue+(n.colour-0.3)*80, sat=B.sat+n.colour*26, lig=B.lig;
-  var body=hsl(hue,sat,lig), dark=hsl(hue,sat+5,lig-17), light=hsl(hue,sat-6,lig+14);
+  var hue=B.hue+B.dir*(n.colour-0.3)*40, sat=B.sat+n.colour*14, lig=B.lig;   // colour range limited
+  var dark=hsl(hue,sat+5,lig-17), light=hsl(hue,sat-6,lig+14);
   var ink="#2b2340";
   var sh=egg?EGG:B.shape;
   var path=bodyPath(sh,R);
-  var rnd=rng(seed*31+b*7+1);
+  var rnd=rng(seed*31+(b<0?5:b)*7+1);
   var long=v.limb==="long";
   var legLen=(!egg&&legE>0.03)?R*0.55*legE*(long?1.6:1):0;
   var out=[];
   out.push('<defs>');
-  out.push('<radialGradient id="g'+u+'" cx="38%" cy="30%" r="80%"><stop offset="0" stop-color="'+light+'"/><stop offset="1" stop-color="'+(mut==="shimmer"?hsl(hue+75,sat,lig-6):dark)+'"/></radialGradient>');
+  var stopA=light, stopB=dark;
+  if(mut==="shimmer"){stopA=hsl(hue,sat+10,lig+16);stopB=hsl(hue+75,sat+15,lig+2);}
+  out.push('<radialGradient id="g'+u+'" cx="38%" cy="30%" r="80%"><stop offset="0" stop-color="'+stopA+'"/><stop offset="1" stop-color="'+stopB+'"/></radialGradient>');
   out.push('<radialGradient id="a'+u+'"><stop offset="0" stop-color="'+hsl(hue+40,95,66,0.15+0.55*n.aura)+'"/><stop offset="1" stop-color="'+hsl(hue+40,95,66,0)+'"/></radialGradient>');
   out.push('<radialGradient id="e'+u+'"><stop offset="0" stop-color="rgba(120,245,255,.95)"/><stop offset="1" stop-color="rgba(120,245,255,0)"/></radialGradient>');
   out.push('<clipPath id="c'+u+'"><path d="'+path+'"/></clipPath>');
   out.push('</defs>');
   var shift=10-legLen*0.5;
   out.push('<g transform="translate(0,'+shift.toFixed(1)+')">');
-  // aura
   if(mut==="rainbow"){
     var cols=[0,60,120,190,260,310];
     for(var i=0;i<cols.length;i++){
-      var rr=R*(1.7-i*0.14);
-      out.push('<circle cx="0" cy="0" r="'+rr.toFixed(1)+'" fill="'+hsl(cols[i],90,62,0.26)+'"/>');
+      out.push('<circle cx="0" cy="0" r="'+(R*(1.5-i*0.12)).toFixed(1)+'" fill="'+hsl(cols[i],90,62,0.16)+'"/>');
     }
   } else if(n.aura>0.04&&!egg){
     out.push('<circle cx="0" cy="0" r="'+(R*(1.1+0.55*n.aura)).toFixed(1)+'" fill="url(#a'+u+')"/>');
   }
-  // ground shadow
   var floor=sh.ry*R*0.98+legLen;
   out.push('<ellipse cx="0" cy="'+(floor+R*0.06).toFixed(1)+'" rx="'+(R*0.8).toFixed(1)+'" ry="'+(R*0.09).toFixed(1)+'" fill="rgba(0,0,0,.13)"/>');
   out.push('<g class="'+(egg?"wob":"idle")+'">');
-  // legs (behind body)
   if(legLen>0){
     var lw=R*(long?0.17:0.22);
     [-1,1].forEach(function(s){
@@ -190,7 +167,6 @@ function drawCreature(b,n,stage,v,mut,seed,u){
       out.push('<line x1="'+x.toFixed(1)+'" y1="'+y0.toFixed(1)+'" x2="'+x.toFixed(1)+'" y2="'+y1.toFixed(1)+'" stroke="'+dark+'" stroke-width="'+lw.toFixed(1)+'" stroke-linecap="round"/>');
     });
   }
-  // wings or arms (behind body)
   if(!egg&&armE>0.03){
     if(v.limb==="wings"&&stage>=2){
       var W=R*(0.12+0.5*armE);
@@ -200,36 +176,36 @@ function drawCreature(b,n,stage,v,mut,seed,u){
         out.push('<g transform="translate('+ox.toFixed(1)+','+oy.toFixed(1)+') scale('+s+',1) rotate(-12)"><path d="'+d+'" fill="'+light+'" stroke="'+dark+'" stroke-width="2" stroke-linejoin="round"/></g>');
       });
     } else {
-      var P=R*0.55*armE*(long?1.6:1), aw=R*(long?0.12:0.15);
-      var ang=35*Math.PI/180;
+      var P=R*0.55*armE*(long?1.6:1), aw=R*(long?0.12:0.15), ang=35*Math.PI/180;
       [-1,1].forEach(function(s){
-        var ex=s*sh.rx*R*0.93, ey=R*0.08;
-        var dx=s*Math.cos(ang), dy=Math.sin(ang);
+        var ex=s*sh.rx*R*0.93, ey=R*0.08, dx=s*Math.cos(ang), dy=Math.sin(ang);
         out.push('<line x1="'+(ex-dx*R*0.3).toFixed(1)+'" y1="'+(ey-dy*R*0.3).toFixed(1)+'" x2="'+(ex+dx*P).toFixed(1)+'" y2="'+(ey+dy*P).toFixed(1)+'" stroke="'+dark+'" stroke-width="'+(aw*2).toFixed(1)+'" stroke-linecap="round"/>');
       });
     }
   }
-  // horns (behind body)
   var topY=-sh.ry*R*(1+sh.pear*0.16);
   if(!egg&&stage>=3&&v.topper==="horns"){
-    var hx=sh.pear>0.5?0.2*R:0.36*R, hy=topY+R*0.2;
+    var hx=sh.pear>0.5?0.2*R:0.36*R, hy=topY+R*0.22;
     [-1,1].forEach(function(s){
-      var d="M"+(s*hx-s*R*0.1)+","+hy+" Q"+(s*hx+s*R*0.02)+","+(hy-R*0.25)+" "+(s*hx+s*R*0.14)+","+(hy-R*0.42)+" Q"+(s*hx+s*R*0.14)+","+(hy-R*0.1)+" "+(s*hx+s*R*0.1)+","+hy+"Z";
-      out.push('<path d="'+d+'" fill="hsl(45,75%,86%)" stroke="'+ink+'" stroke-width="2" stroke-linejoin="round"/>');
+      var d="M"+(s*hx-s*R*0.15)+","+hy+" Q"+(s*hx+s*R*0.0)+","+(hy-R*0.28)+" "+(s*hx+s*R*0.16)+","+(hy-R*0.46)+" Q"+(s*hx+s*R*0.2)+","+(hy-R*0.1)+" "+(s*hx+s*R*0.15)+","+hy+"Z";
+      out.push('<path d="'+d+'" fill="hsl(45,75%,86%)" stroke="'+ink+'" stroke-width="2.5" stroke-linejoin="round"/>');
     });
   }
-  // body
   out.push('<path d="'+path+'" fill="url(#g'+u+')" stroke="'+dark+'" stroke-width="2.5" stroke-linejoin="round"/>');
-  // pattern
   var pa=egg?0.5:n.pattern;
   if(pa>0.04){
     out.push('<g clip-path="url(#c'+u+')">');
     if(egg||v.pat==="spots"){
       var cnt=Math.round(3+pa*10);
       for(var k=0;k<cnt;k++){
-        var an=rnd()*Math.PI*2, rad=Math.sqrt(rnd())*0.85;
-        var px=Math.cos(an)*sh.rx*R*rad, py=Math.sin(an)*sh.ry*R*rad, pr=R*(0.05+rnd()*0.07);
-        out.push('<circle cx="'+px.toFixed(1)+'" cy="'+py.toFixed(1)+'" r="'+pr.toFixed(1)+'" fill="'+hsl(hue-12,sat+8,lig-22,0.22+pa*0.4)+'"/>');
+        var px=0,py=0,pr=0,tries=0,ok=false;
+        while(tries<8&&!ok){
+          var an=rnd()*Math.PI*2, rad=Math.sqrt(rnd())*0.85;
+          px=Math.cos(an)*sh.rx*R*rad; py=Math.sin(an)*sh.ry*R*rad; pr=R*(0.05+rnd()*0.07);
+          ok=egg||!(Math.abs(px)<R*0.66&&py>-R*0.32&&py<R*0.36);   // keep spots off the face
+          tries++;
+        }
+        if(ok)out.push('<circle cx="'+px.toFixed(1)+'" cy="'+py.toFixed(1)+'" r="'+pr.toFixed(1)+'" fill="'+hsl(hue-12,sat+8,lig-22,0.22+pa*0.4)+'"/>');
       }
     } else {
       var sc=2+Math.round(pa*6), gap=(R*2.2)/sc;
@@ -239,15 +215,12 @@ function drawCreature(b,n,stage,v,mut,seed,u){
     }
     out.push('</g>');
   }
-  // fluff (in front of body top)
   if(!egg&&stage>=3&&v.topper==="fluff"){
     var fr=R*0.15;
-    var fp=[[0,0,1.1],[-0.15,0.05,0.9],[0.15,0.05,0.9],[-0.28,0.13,0.7],[0.28,0.13,0.7]];
-    fp.forEach(function(f){
+    [[0,0,1.1],[-0.15,0.05,0.9],[0.15,0.05,0.9],[-0.28,0.13,0.7],[0.28,0.13,0.7]].forEach(function(f){
       out.push('<circle cx="'+(f[0]*R).toFixed(1)+'" cy="'+(topY+R*0.03+f[1]*R).toFixed(1)+'" r="'+(fr*f[2]).toFixed(1)+'" fill="hsl(0,0%,98%)" stroke="'+hsl(hue,sat-10,lig-8,0.6)+'" stroke-width="1.5"/>');
     });
   }
-  // face
   if(!egg){
     var er=R*(0.09+0.12*eyeE), ey2=-R*0.1*sh.ry, ex2=R*0.32;
     var pupil=mut==="eyes"?"#7ff3ff":hsl(hue+160,45,26);
@@ -271,7 +244,6 @@ function drawCreature(b,n,stage,v,mut,seed,u){
     out.push('<path d="M'+(-mw).toFixed(1)+','+my.toFixed(1)+' Q0,'+(my+mw*1.4).toFixed(1)+' '+mw.toFixed(1)+','+my.toFixed(1)+'" fill="none" stroke="'+ink+'" stroke-width="2.5" stroke-linecap="round"/>');
   }
   out.push('</g>');
-  // sparkles
   if(!egg&&(mut==="shimmer"||n.aura>0.55)){
     var sr=rng(seed+99);
     for(var z=0;z<6;z++){
@@ -280,119 +252,165 @@ function drawCreature(b,n,stage,v,mut,seed,u){
     }
   }
   out.push('</g>');
-  return '<svg viewBox="-210 -210 420 420" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Creature">'+out.join("")+'</svg>';
+  var half=[140,140,165,190,210][stage];   // zoom in on the younger stages so they are not tiny
+  return '<svg viewBox="'+(-half)+' '+(-half)+' '+(half*2)+' '+(half*2)+'" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="'+(egg?"An egg":"Your Squishle")+'">'+out.join("")+'</svg>';
 }
-function replay(b){
-  var n=Object.assign({},BASE);
-  S.hist.forEach(function(c){DRIVES[c].forEach(function(k){n[k]=clamp(n[k]+NUDGE*BLOBS[b].mult[k]);});});
-  return n;
+
+// ---------- save ----------
+var G=load();
+function fresh(){return {v:1,phase:"intro",seed:Math.floor(Math.random()*1e9),answers:[],c:null,dev:false};}
+function load(){
+  try{var r=localStorage.getItem(KEY);if(r){var o=JSON.parse(r);if(o&&o.v===1&&o.phase)return o;}}catch(e){}
+  return fresh();
 }
-function count(c){return S.hist.filter(function(x){return x===c;}).length;}
-var toastT=null;
-function toast(msg){var t=$("#toast");t.textContent=msg;t.classList.add("show");clearTimeout(toastT);toastT=setTimeout(function(){t.classList.remove("show");},2200);}
-function react(){var st=$("#stage");st.classList.remove("pop");void st.offsetWidth;st.classList.add("pop");}
-function choose(c){
-  S.hist.push(c);
-  var B=BLOBS[S.blob], bits=[];
-  DRIVES[c].forEach(function(k){
-    var before=S.n[k]; S.n[k]=clamp(S.n[k]+NUDGE*B.mult[k]);
-    bits.push(k+" +"+(S.n[k]-before).toFixed(2));
-  });
-  react(); render();
-  toast(c+": "+bits.join(", "));
+function save(){try{localStorage.setItem(KEY,JSON.stringify(G));}catch(e){}}
+function wipe(){try{localStorage.removeItem(KEY);}catch(e){}G=fresh();}
+
+// ---------- quiz logic ----------
+function pickBlob(answers,seed){
+  var pts=[0,0,0,0];
+  for(var i=0;i<VIBE.length;i++){var a=answers[i];if(a!==undefined&&VIBE[i].o[a])pts[VIBE[i].o[a].b]++;}
+  var max=Math.max.apply(null,pts), tied=[];
+  for(var b=0;b<4;b++)if(pts[b]===max)tied.push(b);
+  var pick=tied.length===1?tied[0]:tied[Math.floor(rng(seed)()*tied.length)];
+  return {blob:pick,pts:pts,tied:tied.length>1};
 }
-function setStage(i){S.stage=i;render();}
-function stageUp(i){
-  S.stage=i;
-  var msg=STAGES[i]+"!";
-  var rr=rng(Math.floor(Math.random()*1e9));
-  if(i===2){
-    var cu=count("curious"),ca=count("cautious");
-    S.v.limb=cu>ca?"wings":ca>cu?"long":(rr()<0.5?"wings":"long");
-    msg+=" limbs: "+S.v.limb;
-  } else if(i===3){
-    var ki=count("kind"),am=count("ambitious");
-    S.v.topper=ki>am?"fluff":am>ki?"horns":(rr()<0.5?"fluff":"horns");
-    S.v.eye=count("cautious")>count("curious")?"sleepy":"round";
-    msg+=" topper: "+S.v.topper+", eyes: "+S.v.eye;
-  } else if(i===4){
-    S.v.pat=rr()<0.5?"spots":"stripes";
-    msg+=" pattern: "+S.v.pat;
-  }
-  var p=parseFloat($("#mutRate").value);
-  if(i>=2&&S.mut==="none"&&Math.random()<p){
-    S.mut=["eyes","shimmer","rainbow"][Math.floor(Math.random()*3)];
-    msg+=" Something strange stirred...";
-  }
-  react(); render(); toast(msg);
+function leansFrom(answers){
+  var ls=[];
+  for(var i=0;i<PERS.length;i++){var a=answers[VIBE.length+i];if(a!==undefined&&PERS[i].o[a])ls.push(PERS[i].o[a].l);}
+  return ls;
 }
-var timer=null;
-function stopLife(){if(timer){clearInterval(timer);timer=null;}$("#playBtn").textContent="Play a whole life";}
-function playLife(){
-  if(timer){stopLife();return;}
-  var b=S.blob; S=fresh(b); S.stage=0; render(); toast("Egg..."); $("#playBtn").textContent="Stop";
-  var tick=0, choices=0;
-  timer=setInterval(function(){
-    tick++;
-    if(tick===1){S.stage=1;react();render();toast("Hatched!");return;}
-    var c=["curious","cautious","kind","ambitious"][Math.floor(Math.random()*4)];
-    choose(c); choices++;
-    if(choices===2)stageUp(2);
-    else if(choices===6)stageUp(3);
-    else if(choices===10){stageUp(4);stopLife();}
-  },700);
+function reasonFor(answers,res){
+  var rs=[];
+  for(var i=0;i<VIBE.length;i++){var o=VIBE[i].o[answers[i]];if(o&&o.b===res.blob)rs.push(o.r);}
+  var txt;
+  if(rs.length===0)txt="";
+  else if(rs.length===1)txt=rs[0];
+  else txt=rs.slice(0,-1).join(", ")+" and "+rs[rs.length-1];
+  var nm=BLOBS[res.blob].name;
+  if(res.tied)return "It was a close call, but your egg chose "+nm+(txt?" (you picked "+txt+")":"")+".";
+  return "You picked "+txt+", so you hatched "+(/^[AEIOU]/.test(nm)?"an ":"a ")+nm+".";
 }
-function randomCreature(){
-  stopLife();
-  var r=Math.random;
-  S=fresh(Math.floor(r()*4)); S.stage=4; S.seed=Math.floor(r()*1e6);
-  KEYS.forEach(function(k){S.n[k]=r();});
-  S.v.limb=["stub","long","wings"][Math.floor(r()*3)];
-  S.v.topper=["none","fluff","horns"][Math.floor(r()*3)];
-  S.v.eye=["round","sleepy"][Math.floor(r()*2)];
-  S.v.pat=["spots","stripes"][Math.floor(r()*2)];
-  S.mut=r()<0.3?["eyes","shimmer","rainbow"][Math.floor(r()*3)]:"none";
-  render();
+function makeCreature(b,leans,seed,reason){
+  var n={};KEYS.forEach(function(k){n[k]=BASE[k];});
+  leans.forEach(function(l){DRIVES[l].forEach(function(k){n[k]=clamp(n[k]+CFG.NUDGE*CFG.QUIZ*BLOBS[b].mult[k]);});});
+  return {blob:b,n:n,v:{limb:"stub",topper:"none",eye:"round",pat:"spots"},mut:"none",seed:seed%100000,name:"Squish",born:Date.now(),stage:1,hist:[],quizLeans:leans,reason:reason||""};
 }
-function resetAll(){stopLife();S=fresh(S.blob);render();}
+
+// ---------- screens ----------
+var main=$("#main");
+function setArt(html){var a=$("#art");if(a)a.innerHTML=html;}
+function artBox(extraClass){return '<div id="artbox"><div id="art" class="'+(extraClass||"")+'"></div><div id="bubble"></div></div>';}
 function render(){
-  $("#art").innerHTML=drawCreature(S.blob,S.n,S.stage,S.v,S.mut,S.seed,"m");
-  document.querySelectorAll("#blobChips .chip").forEach(function(el,i){el.classList.toggle("on",i===S.blob);});
-  document.querySelectorAll("#stageChips .chip").forEach(function(el,i){el.classList.toggle("on",i===S.stage);});
-  KEYS.forEach(function(k){var el=$("#sl_"+k);if(el){el.value=S.n[k];$("#sv_"+k).textContent=S.n[k].toFixed(2);}});
-  $("#vLimb").value=S.v.limb;$("#vTop").value=S.v.topper;$("#vEye").value=S.v.eye;$("#vPat").value=S.v.pat;$("#mutSel").value=S.mut;
-  var h={};S.hist.forEach(function(c){h[c]=(h[c]||0)+1;});
-  var hs=Object.keys(h).map(function(c){return c+" x"+h[c];}).join(", ")||"none yet";
-  $("#readout").textContent="Blob: "+BLOBS[S.blob].name+"   Stage: "+STAGES[S.stage]+"\nNumbers: "+KEYS.map(function(k){return k+" "+S.n[k].toFixed(2);}).join(", ")+"\nVariants: "+S.v.limb+", "+S.v.topper+", "+S.v.eye+", "+S.v.pat+"   Mutation: "+S.mut+"\nChoices: "+hs+"\nLimbs only show from Child, toppers from Teen (stage caps).";
-  renderLineup();
+  $("#dev").innerHTML="";
+  var p=G.phase;
+  if(p==="intro")renderIntro();
+  else if(p==="quiz")renderQuiz();
+  else if(p==="reveal")renderReveal();
+  else renderHome();
+  if(G.dev)renderDev();
 }
-function renderLineup(){
-  var box=$("#lineup"), on=$("#lineChk").checked;
-  box.hidden=!on; if(!on)return;
-  var html="";
-  for(var b=0;b<4;b++){
-    html+="<div>"+drawCreature(b,replay(b),S.stage,S.v,"none",S.seed,"l"+b)+BLOBS[b].name+"</div>";
+function renderIntro(){
+  main.innerHTML='<div class="card rise"><h2>Raise one Squishle</h2>'+
+    '<p>You get one creature. It starts as an egg, hatches, and grows into something no one else has, shaped by the little choices you make.</p>'+
+    '<p class="mute">First, a few quick questions to help your egg decide who it will be.</p>'+
+    '<p class="mute">For ages 13 and over. Everything is saved on this device only.</p>'+
+    '<button class="btn" id="go">Begin</button></div>';
+  $("#go").addEventListener("click",function(){G.phase="quiz";G.answers=[];save();render();});
+}
+function renderQuiz(){
+  var i=G.answers.length;
+  if(i>=NQ){finishQuiz();return;}
+  var isVibe=i<VIBE.length, qd=isVibe?VIBE[i]:PERS[i-VIBE.length];
+  var dots="";for(var d=0;d<NQ;d++)dots+='<i class="'+(d<i?"on":"")+'"></i>';
+  var opts=qd.o.map(function(o,idx){return '<button class="opt" data-i="'+idx+'">'+esc(o.t)+'</button>';}).join("");
+  main.innerHTML='<div class="card">'+artBox()+'<div class="prog">Question '+(i+1)+' of '+NQ+'</div><div class="dots">'+dots+'</div>'+
+    '<h2 style="margin-top:10px">'+esc(qd.q)+'</h2>'+opts+'</div>';
+  var wob=Math.max(0.6,1.8-0.22*i);
+  $("#art").style.setProperty("--wob",wob+"s");
+  setArt(drawCreature(-1,BASE,0,{limb:"stub",topper:"none",eye:"round",pat:"spots"},"none",G.seed%1000,"q"));
+  main.querySelectorAll(".opt").forEach(function(el){
+    el.addEventListener("click",function(){
+      G.answers.push(+el.dataset.i);save();
+      var a=$("#art");if(a){a.classList.remove("pop");void a.offsetWidth;a.classList.add("pop");}
+      setTimeout(render,180);
+    });
+  });
+}
+function finishQuiz(){
+  var res=pickBlob(G.answers,G.seed);
+  var leans=leansFrom(G.answers);
+  G.c=makeCreature(res.blob,leans,G.seed,reasonFor(G.answers,res));
+  G.phase="reveal";G.playHatch=true;save();render();
+}
+function renderReveal(){
+  var c=G.c,B=BLOBS[c.blob];
+  var play=!!G.playHatch;G.playHatch=false;
+  main.innerHTML='<div class="card">'+artBox(play?"shake":"")+
+    '<div id="info" style="'+(play?"display:none":"")+'">'+
+    '<h2 style="margin-top:8px">It\'s '+(/^[AEIOU]/.test(B.name)?"an ":"a ")+esc(B.name)+'!</h2>'+
+    '<p>'+esc(B.line)+'</p><p class="mute">'+esc(c.reason)+'</p>'+
+    '<p class="mute" style="margin-top:12px">What will you call it?</p>'+
+    '<input type="text" id="nm" maxlength="'+CFG.MAXNAME+'" placeholder="Squish" autocomplete="off" autocapitalize="words" aria-label="Name">'+
+    '<button class="btn" id="meet">Meet '+'them</button></div></div>';
+  function show(){
+    setArt(drawCreature(c.blob,c.n,c.stage,c.v,c.mut,c.seed,"r"));
+    var a=$("#art");a.classList.remove("shake");a.classList.add("pop");
+    var inf=$("#info");inf.style.display="";inf.classList.add("rise");
   }
-  box.innerHTML=html;
+  function bind(){
+    $("#meet").addEventListener("click",function(){
+      var v=$("#nm").value.replace(/[\u0000-\u001f<>]/g,"").slice(0,CFG.MAXNAME).trim();
+      G.c.name=v||"Squish";G.phase="home";save();render();
+    });
+  }
+  bind();
+  if(play){
+    setArt(drawCreature(-1,BASE,0,{limb:"stub",topper:"none",eye:"round",pat:"spots"},"none",G.seed%1000,"q"));
+    setTimeout(function(){var f=$("#flash");f.classList.remove("go");void f.offsetWidth;f.classList.add("go");},1100);
+    setTimeout(show,1350);
+  } else show();
 }
-function init(){
-  $("#blobChips").innerHTML=BLOBS.map(function(b,i){return '<button class="chip" data-b="'+i+'">'+b.name+'</button>';}).join("");
-  $("#stageChips").innerHTML=STAGES.map(function(s,i){return '<button class="chip" data-s="'+i+'">'+s+'</button>';}).join("");
-  $("#sliders").innerHTML=KEYS.map(function(k){return '<div class="slider"><span>'+k+'</span><input type="range" min="0" max="1" step="0.01" id="sl_'+k+'" aria-label="'+k+'"><span id="sv_'+k+'"></span></div>';}).join("");
-  document.querySelectorAll("#blobChips .chip").forEach(function(el){el.addEventListener("click",function(){S.blob=+el.dataset.b;render();});});
-  document.querySelectorAll("#stageChips .chip").forEach(function(el){el.addEventListener("click",function(){setStage(+el.dataset.s);});});
-  document.querySelectorAll(".choice").forEach(function(el){el.addEventListener("click",function(){choose(el.dataset.c);});});
-  KEYS.forEach(function(k){$("#sl_"+k).addEventListener("input",function(e){S.n[k]=parseFloat(e.target.value);render();});});
-  [["vLimb","limb"],["vTop","topper"],["vEye","eye"],["vPat","pat"]].forEach(function(p){$("#"+p[0]).addEventListener("change",function(e){S.v[p[1]]=e.target.value;render();});});
-  $("#mutSel").addEventListener("change",function(e){S.mut=e.target.value;render();});
-  $("#lineChk").addEventListener("change",render);
-  $("#playBtn").addEventListener("click",playLife);
-  $("#randBtn").addEventListener("click",randomCreature);
-  $("#resetBtn").addEventListener("click",resetAll);
-  render();
+function renderHome(){
+  var c=G.c,B=BLOBS[c.blob];
+  var born=new Date(c.born).toLocaleString(undefined,{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"});
+  main.innerHTML='<div class="card">'+artBox()+
+    '<h2 style="margin-top:8px;text-align:center">'+esc(c.name)+'</h2>'+
+    '<p style="text-align:center"><span class="badge">'+esc(B.name)+'</span><span class="badge">'+STAGES[c.stage]+'</span></p>'+
+    '<p class="mute" style="text-align:center">Hatched '+esc(born)+'. Tap '+esc(c.name)+' to say hi.</p></div>'+
+    '<div class="card"><p class="mute">This is step 1 of the prototype: the hatch. Next come the daily choices and growing up. Come back soon.</p></div>';
+  setArt(drawCreature(c.blob,c.n,c.stage,c.v,c.mut,c.seed,"h"));
+  $("#artbox").addEventListener("click",function(){
+    var a=$("#art");a.classList.remove("pop");void a.offsetWidth;a.classList.add("pop");
+    var b=$("#bubble");b.textContent=HI[Math.floor(Math.random()*HI.length)];b.classList.add("show");
+    clearTimeout(renderHome.t);renderHome.t=setTimeout(function(){b.classList.remove("show");},1200);
+  });
 }
-init();
-window.__sq={S:function(){return S;},draw:drawCreature,BLOBS:BLOBS};
+
+// ---------- hidden test panel (tap the title five times) ----------
+var taps=0,tapT=null;
+$("#title").addEventListener("click",function(){
+  taps++;clearTimeout(tapT);tapT=setTimeout(function(){taps=0;},2500);
+  if(taps>=5){taps=0;G.dev=!G.dev;save();render();}
+});
+function renderDev(){
+  var d=$("#dev");
+  var blobBtns=BLOBS.map(function(b,i){return '<button data-b="'+i+'">Hatch as '+b.name+'</button>';}).join("");
+  d.innerHTML='<div class="dev"><h3>Test panel</h3><div class="row">'+blobBtns+
+    '<button id="dRestart">Erase save and start again</button><button id="dShow">Show save data</button><button id="dClose">Close panel</button></div><pre id="dOut"></pre></div>';
+  d.querySelectorAll("[data-b]").forEach(function(el){
+    el.addEventListener("click",function(){
+      var b=+el.dataset.b;
+      G.c=makeCreature(b,[],G.seed,"Hatched from the test panel.");G.phase="reveal";G.playHatch=true;save();render();
+    });
+  });
+  $("#dRestart").addEventListener("click",function(){var keep=G.dev;wipe();G.dev=keep;save();render();});
+  $("#dShow").addEventListener("click",function(){$("#dOut").textContent=JSON.stringify(G);});
+  $("#dClose").addEventListener("click",function(){G.dev=false;save();render();});
+}
+
+window.__sq1={G:function(){return G;},pickBlob:pickBlob,VIBE:VIBE,PERS:PERS,BLOBS:BLOBS,draw:drawCreature,KEY:KEY};
+render();
 })();
 </script>
 </body>
