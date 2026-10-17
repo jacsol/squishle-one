@@ -44,6 +44,13 @@ input[type=text]{width:100%;min-height:48px;border-radius:12px;border:1px solid 
 .dev button{min-height:40px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink);font:inherit;font-size:14px;padding:6px 10px;cursor:pointer}
 .dev pre{white-space:pre-wrap;word-break:break-all;font-size:11px;color:var(--mute);margin:8px 0 0}
 .say{min-height:1.6em;text-align:center;font-style:italic;margin:8px 0 2px}
+.two{display:flex;gap:10px}.two .btn{margin-top:8px}
+.entry{border-top:1px solid var(--line);padding:8px 0}.entry:first-of-type{border-top:0}
+.code{font:600 22px/1.3 ui-monospace,Menlo,monospace;letter-spacing:1px;text-align:center;background:var(--bg);border:1px dashed var(--line);border-radius:12px;padding:12px;user-select:all;-webkit-user-select:all}
+textarea{width:100%;min-height:120px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--ink);font:12px/1.4 ui-monospace,Menlo,monospace;padding:8px;margin-top:8px}
+.keep{display:flex;align-items:center;gap:12px;border-top:1px solid var(--line);padding:8px 0}.keep:first-of-type{border-top:0}
+.mini svg{width:84px;height:84px;display:block}
+.btn[disabled]{opacity:.5;cursor:default}
 /* animation */
 .idle{transform-box:fill-box;transform-origin:50% 100%;animation:idle 3.2s ease-in-out infinite}
 .wob{transform-box:fill-box;transform-origin:50% 100%;animation:wob var(--wob,1.8s) ease-in-out infinite}
@@ -73,7 +80,7 @@ input[type=text]{width:100%;min-height:48px;border-radius:12px;border:1px solid 
 "use strict";
 var $=function(s){return document.querySelector(s)};
 var KEY="squishleOne.v1";           // own save key: never the same as Squishle v15.2
-var CFG={NUDGE:0.2,QUIZ:0.33,MAXNAME:12,GAP:4*3600*1000,CAP:2,MUT:1/6};   // GAP = hours between choices, CAP = choices per calendar day, MUT = mutation chance per growth (first test round)
+var CFG={NUDGE:0.2,QUIZ:0.33,MAXNAME:12,GAP:4*3600*1000,CAP:2,MUT:1/6,CARE:5,REGEN:3*3600*1000,AWAY:20*3600*1000,VISIT:30*60*1000,CARENUDGE:0.1,AWAYNUDGE:0.5,AWAYCAP:3};   // GAP = hours between choices, CAP = choices per calendar day, MUT = mutation chance per growth (first test round)
 var STAGES=["Egg","Baby","Child","Teen","Adult"];
 var SCALE=[0.8,0.62,0.76,0.9,1];
 var LIMCAP=[0,0,0.4,0.75,1];
@@ -148,7 +155,7 @@ function star(cx,cy,r,fill,cls,delay){
 }
 
 // ---------- the procedural creature (from the approved look test, with the rough edges fixed) ----------
-function drawCreature(b,n,stage,v,mut,seed,u){
+function drawCreature(b,n,stage,v,mut,seed,u,pose){
   var B=b<0?GENERIC:BLOBS[b], egg=stage===0, R=95*SCALE[stage], cap=LIMCAP[stage];
   var eyeE=n.eyes, armE=Math.min(n.arms,cap), legE=Math.min(n.legs,cap);
   var hue=B.hue+B.dir*(n.colour-0.3)*40, sat=B.sat+n.colour*14, lig=B.lig;   // colour range limited
@@ -248,6 +255,10 @@ function drawCreature(b,n,stage,v,mut,seed,u){
     [-1,1].forEach(function(s){
       var cx=s*ex2;
       if(mut==="eyes")out.push('<circle cx="'+cx.toFixed(1)+'" cy="'+ey2.toFixed(1)+'" r="'+(er*2.4).toFixed(1)+'" fill="url(#e'+u+')"/>');
+      if(pose==="sleep"){
+        out.push('<path d="M'+(cx-er*1.1).toFixed(1)+','+ey2.toFixed(1)+' Q'+cx.toFixed(1)+','+(ey2+er*1.1).toFixed(1)+' '+(cx+er*1.1).toFixed(1)+','+ey2.toFixed(1)+'" fill="none" stroke="'+ink+'" stroke-width="2.5" stroke-linecap="round"/>');
+        return;
+      }
       if(v.eye==="sleepy"){
         out.push('<path d="M'+(cx-er).toFixed(1)+','+ey2.toFixed(1)+' A'+er.toFixed(1)+','+er.toFixed(1)+' 0 0 0 '+(cx+er).toFixed(1)+','+ey2.toFixed(1)+'Z" fill="#fff" stroke="'+ink+'" stroke-width="1.5"/>');
         out.push('<circle cx="'+cx.toFixed(1)+'" cy="'+(ey2+er*0.38).toFixed(1)+'" r="'+(er*0.5).toFixed(1)+'" fill="'+pupil+'"/>');
@@ -263,6 +274,10 @@ function drawCreature(b,n,stage,v,mut,seed,u){
     });
     var mw=R*0.12, my=R*0.2;
     out.push('<path d="M'+(-mw).toFixed(1)+','+my.toFixed(1)+' Q0,'+(my+mw*1.4).toFixed(1)+' '+mw.toFixed(1)+','+my.toFixed(1)+'" fill="none" stroke="'+ink+'" stroke-width="2.5" stroke-linecap="round"/>');
+    if(pose==="sleep"){
+      out.push('<text x="'+(R*0.85).toFixed(1)+'" y="'+(-R*0.85).toFixed(1)+'" font-size="'+(R*0.34).toFixed(0)+'" font-weight="700" fill="'+dark+'" class="tw">z</text>');
+      out.push('<text x="'+(R*1.05).toFixed(1)+'" y="'+(-R*1.1).toFixed(1)+'" font-size="'+(R*0.26).toFixed(0)+'" font-weight="700" fill="'+dark+'" class="tw" style="animation-delay:.5s">z</text>');
+    }
   }
   out.push('</g>');
   if(!egg&&(mut==="shimmer"||n.aura>0.55)){
@@ -279,9 +294,9 @@ function drawCreature(b,n,stage,v,mut,seed,u){
 
 // ---------- save ----------
 var G=load();
-function fresh(){return {v:1,phase:"intro",seed:Math.floor(Math.random()*1e9),answers:[],c:null,dev:false};}
+function fresh(){return {v:1,phase:"intro",seed:Math.floor(Math.random()*1e9),answers:[],c:null,dev:false,keep:[],plog:[]};}
 function load(){
-  try{var r=localStorage.getItem(KEY);if(r){var o=JSON.parse(r);if(o&&o.v===1&&o.phase){if(o.c){o.c.log=o.c.log||[];o.c.hist=o.c.hist||[];}return o;}}}catch(e){}
+  try{var r=localStorage.getItem(KEY);if(r){var o=JSON.parse(r);if(o&&o.v===1&&o.phase){if(o.c)norm(o.c);o.keep=o.keep||[];o.plog=o.plog||[];return o;}}}catch(e){}
   return fresh();
 }
 function save(){try{localStorage.setItem(KEY,JSON.stringify(G));}catch(e){}}
@@ -315,11 +330,13 @@ function reasonFor(answers,res){
 function makeCreature(b,leans,seed,reason){
   var n={};KEYS.forEach(function(k){n[k]=BASE[k];});
   leans.forEach(function(l){DRIVES[l].forEach(function(k){n[k]=clamp(n[k]+CFG.NUDGE*CFG.QUIZ*BLOBS[b].mult[k]);});});
-  return {blob:b,n:n,v:{limb:"stub",topper:"none",eye:"round",pat:"spots"},mut:"none",seed:seed%100000,name:"Squish",born:Date.now(),stage:1,hist:[],log:[],quizLeans:leans,reason:reason||""};
+  var c={blob:b,n:n,v:{limb:"stub",topper:"none",eye:"round",pat:"spots"},mut:"none",seed:seed%100000,name:"Squish",born:Date.now(),stage:1,hist:[],log:[],quizLeans:leans,reason:reason||""};
+  norm(c);return c;
 }
 
 // ---------- screens ----------
 var main=$("#main");
+var VIEW="home";
 function setArt(html){var a=$("#art");if(a)a.innerHTML=html;}
 function artBox(extraClass){return '<div id="artbox"><div id="art" class="'+(extraClass||"")+'"></div><div id="bubble"></div></div>';}
 function render(){
@@ -329,6 +346,9 @@ function render(){
   else if(p==="quiz")renderQuiz();
   else if(p==="reveal")renderReveal();
   else if(G.pending)renderStageUp();
+  else if(VIEW==="diary")renderDiary();
+  else if(VIEW==="bond")renderBond();
+  else if(VIEW==="data")renderData();
   else renderHome();
   if(G.dev)renderDev();
 }
@@ -362,7 +382,7 @@ function renderQuiz(){
 function finishQuiz(){
   var res=pickBlob(G.answers,G.seed);
   var leans=leansFrom(G.answers);
-  G.c=makeCreature(res.blob,leans,G.seed,reasonFor(G.answers,res));
+  G.c=makeCreature(res.blob,leans,G.seed,reasonFor(G.answers,res));plog("hatch",{b:res.blob});
   G.phase="reveal";G.playHatch=true;save();render();
 }
 function renderReveal(){
@@ -383,7 +403,7 @@ function renderReveal(){
   function bind(){
     $("#meet").addEventListener("click",function(){
       var v=$("#nm").value.replace(/[\u0000-\u001f<>]/g,"").slice(0,CFG.MAXNAME).trim();
-      G.c.name=v||"Squish";G.phase="home";save();render();
+      G.c.name=v||"Squish";G.phase="home";VIEW="home";G.c.lastSeen=Date.now();save();render();
     });
   }
   bind();
@@ -417,42 +437,45 @@ function fmtWait(ms){
   return h>0?h+"h "+(m%60)+"m":m+"m";
 }
 function nightShare(c){
-  if(!c.hist.length)return 0;
-  var n=0;c.hist.forEach(function(x){var hr=new Date(x.t).getHours();if(hr>=20||hr<6)n++;});
-  return n/c.hist.length;
+  var ts=(c.vis&&c.vis.length>=3)?c.vis:c.hist.map(function(x){return x.t;});
+  if(!ts.length)return 0;
+  var n=0;ts.forEach(function(t){var hr=new Date(t).getHours();if(hr>=20||hr<6)n++;});
+  return n/ts.length;
 }
 function growUp(c){
   c.stage++;
-  var L=[],h=c.hist;
+  var L=[],h=c.hist,inh=c.inh||{};
   var cnt=function(a){return h.filter(function(x){return x.a===a;}).length;};
   var r=rng(c.seed*7+c.stage*131+h.length);
   if(c.stage===2){
     L.push("I'm a child now!");
-    var cu=cnt("curious"),ca=cnt("cautious");
+    var cu=cnt("curious")+(inh.limb==="wings"?0.5:0),ca=cnt("cautious")+(inh.limb==="long"?0.5:0);
     var wings=cu>ca?true:(ca>cu?false:r()<0.5);
     c.v.limb=wings?"wings":"long";
     L.push(wings?"I've got wings! All that exploring paid off.":"My arms and legs grew long and steady. All that careful thinking!");
   } else if(c.stage===3){
     L.push("I'm a teen now!");
-    var ki=cnt("kind"),am=cnt("ambitious");
+    var ki=cnt("kind")+(inh.topper==="fluff"?0.5:0),am=cnt("ambitious")+(inh.topper==="horns"?0.5:0);
     var fl=ki>am?true:(am>ki?false:r()<0.5);
     c.v.topper=fl?"fluff":"horns";
     L.push(fl?"A fluffy tuft grew on my head. All that kindness!":"Little horns! All that striving paid off.");
-    var night=nightShare(c)>=0.5;
+    var thr=inh.eye==="sleepy"?0.35:(inh.eye==="round"?0.65:0.5);
+    var night=nightShare(c)>=thr;
     c.v.eye=night?"sleepy":"round";
     L.push(night?"My eyes have gone sleepy. I do love the evenings.":"My eyes are bright and round. I love the daytime.");
   } else if(c.stage===4){
     L.push("I'm all grown up!");
     var par=0;(G.answers||[]).forEach(function(a){par+=a;});
-    c.v.pat=par%2===0?"spots":"stripes";
+    c.v.pat=inh.pat?inh.pat:(par%2===0?"spots":"stripes");
     L.push(c.v.pat==="spots"?"My spots are here to stay.":"I've got stripes!");
   }
-  var rate=G.forceMut?1:(G.mutRate||CFG.MUT);
+  var rate=G.forceMut?1:Math.min(1,(G.mutRate||CFG.MUT)*(c.mutBoost||1));
   if(c.mut==="none"&&r()<rate){
     c.mut=["eyes","shimmer","rainbow"][Math.floor(r()*3)];
     L.push("Something strange stirred in the night...");
   }
   G.forceMut=false;
+  plog("grow",{s:c.stage,m:c.mut});
   L.forEach(function(x){c.log.push({t:Date.now(),k:"grow",x:x});});
   return L;
 }
@@ -462,6 +485,7 @@ function applyChoice(side){
   var lean=nc.axis==="cp"?(side==="a"?"curious":"cautious"):(side==="a"?"kind":"ambitious");
   DRIVES[lean].forEach(function(k){c.n[k]=clamp(c.n[k]+CFG.NUDGE*BLOBS[c.blob].mult[k]);});
   c.hist.push({a:lean,l:o.l,t:Date.now()});
+  c.lastSeen=Date.now();c.sleep=false;G.welcome=null;plog("choice",{l:lean,s:c.stage});
   c.log.push({t:Date.now(),k:"choice",x:o.l});
   var lines=null;
   if(UP_AT[c.stage]&&c.hist.length>=UP_AT[c.stage])lines=growUp(c);
@@ -485,16 +509,29 @@ function renderStageUp(){
   var f=$("#flash");f.classList.remove("go");void f.offsetWidth;f.classList.add("go");
   $("#cont").addEventListener("click",function(){G.pending=null;save();render();});
 }
+function careBtn(c,k,label){
+  var i=chargeInfo(c,k),off=!G.fast&&i.n<1;
+  return '<button class="btn alt" data-care="'+k+'"'+(off?' disabled':'')+'>'+label+' · '+(G.fast?"∞":i.n)+'</button>';
+}
+function careNote(c){
+  var out=[];
+  ["feed","play"].forEach(function(k){var i=chargeInfo(c,k);if(!G.fast&&i.n<CFG.CARE)out.push("next "+k+" charge in "+fmtWait(i.next-Date.now()));});
+  return out.length?'<p class="mute" style="margin:6px 0 0;text-align:center">'+out.join(" · ")+'</p>':"";
+}
+function wake(){var c=G.c;c.sleep=false;G.welcome=null;c.lastSeen=Date.now();save();render();}
 function renderHome(){
   clearTimeout(homeT);
-  var c=G.c,B=BLOBS[c.blob],st=choiceState(c);
+  var c=G.c,B=BLOBS[c.blob],st=choiceState(c);norm(c);
   var prog="";
   if(c.stage<4){var left=UP_AT[c.stage]-c.hist.length;prog="Grows up after "+left+" more choice"+(left===1?"":"s")+".";}
   var html='<div class="card">'+artBox()+
     '<h2 style="margin-top:8px;text-align:center">'+esc(c.name)+'</h2>'+
-    '<p style="text-align:center"><span class="badge">'+esc(B.name)+'</span><span class="badge">'+STAGES[c.stage]+'</span></p>'+
+    '<p style="text-align:center"><span class="badge">'+esc(B.name)+'</span><span class="badge">'+STAGES[c.stage]+'</span>'+(c.gen>1?'<span class="badge">Gen '+c.gen+'</span>':'')+'</p>'+
     '<div id="say" class="say"></div>'+
     (prog?'<p class="mute" style="text-align:center;margin:2px 0">'+prog+'</p>':'')+'</div>';
+  if(G.welcome&&G.welcome.length){
+    html+='<div class="card rise"><h2>While you were away</h2>'+G.welcome.map(function(l){return '<p>“'+esc(l)+'”</p>';}).join("")+'<button class="btn" id="wake">Say hello</button></div>';
+  }
   if(st.mode==="ready"){
     var nc=nextChoice(c),f1=nc.flip?"b":"a",f2=nc.flip?"a":"b";
     html+='<div class="card"><p class="mute" style="margin:0">A choice for '+esc(c.name)+'</p><h2 style="margin-top:2px">'+esc(nc.sc.s)+'</h2><p>What should '+esc(c.name)+' do?</p>'+
@@ -504,21 +541,261 @@ function renderHome(){
       '<p class="mute">Tip: set an alarm on your phone so you do not forget.</p></div>';
     homeT=setTimeout(render,Math.min(Math.max(st.until-Date.now(),0)+500,60000));
   } else {
-    html+='<div class="card"><h2>All grown up</h2><p>'+esc(c.name)+' is fully grown. Bonding with a friend\'s Squishle to hatch a new egg is coming in a later step.</p></div>';
+    html+='<div class="card"><h2>All grown up</h2><p>'+esc(c.name)+' is fully grown. Swap codes with a friend in Bonding to hatch a new egg.</p><button class="btn" data-v="bond">Go to Bonding</button></div>';
   }
-  html+='<div class="card"><p class="mute">Prototype: feeding, playing and the diary come next.</p></div>';
+  html+='<div class="card"><p class="mute" style="margin:0 0 2px">Look after '+esc(c.name)+'</p><div class="two">'+careBtn(c,"feed","Feed")+careBtn(c,"play","Play")+'</div>'+careNote(c)+'</div>';
+  html+='<div class="two"><button class="btn alt" data-v="diary">Diary</button><button class="btn alt" data-v="bond">Bonding</button><button class="btn alt" data-v="data">Data</button></div>';
   main.innerHTML=html;
-  setArt(drawCreature(c.blob,c.n,c.stage,c.v,c.mut,c.seed,"h"));
+  setArt(drawCreature(c.blob,c.n,c.stage,c.v,c.mut,c.seed,"h",c.sleep?"sleep":""));
   if(popNext){popNext=false;var a0=$("#art");a0.classList.add("pop");}
-  if(sayNext){var sy=$("#say");sy.textContent="“"+sayNext+"”";sayNext=null;}
+  var sy=$("#say");
+  if(sayNext){sy.textContent="“"+sayNext+"”";sayNext=null;}
+  else if(c.sleep)sy.textContent="Zzz...";
   main.querySelectorAll(".opt[data-s]").forEach(function(el){el.addEventListener("click",function(){takeChoice(el.dataset.s);});});
+  main.querySelectorAll("[data-care]").forEach(function(el){el.addEventListener("click",function(){doCare(el.dataset.care);});});
+  bindNav();
+  var w=$("#wake");if(w)w.addEventListener("click",wake);
   $("#artbox").addEventListener("click",function(){
+    if(c.sleep){wake();return;}
     var a=$("#art");a.classList.remove("pop");void a.offsetWidth;a.classList.add("pop");
     var b=$("#bubble");b.textContent=HI[Math.floor(Math.random()*HI.length)];b.classList.add("show");
     clearTimeout(renderHome.t);renderHome.t=setTimeout(function(){b.classList.remove("show");},1200);
   });
 }
-document.addEventListener("visibilitychange",function(){if(!document.hidden&&G.phase==="home"&&!G.pending)render();});
+function bindNav(){main.querySelectorAll("[data-v]").forEach(function(el){el.addEventListener("click",function(){setView(el.dataset.v);});});}
+function setView(v){VIEW=v;render();window.scrollTo(0,0);}
+
+// ---------- step 3: care, visit rhythm, away, diary ----------
+var FEED_SAY=["Yum!","Nom nom nom!","More please!","That was tasty.","Mmm, berries!","My tummy is happy."];
+var PLAY_SAY=["Wheee!","Again, again!","I bounced so high!","That was fun!","Catch me!","Boing boing!"];
+var FEED_LOG=["I got fed today. I felt warm all over.","Snack time! I think my colours like it.","A good meal makes the world look brighter."];
+var PLAY_LOG=["We played today. My legs felt bouncy.","I ran around until I was dizzy. The best.","Playing makes me want to jump even higher."];
+var AWAY_SLEEP=["I took a long nap while you were gone.","I curled up and dreamed about puddles.","It was quiet, so I snoozed. Zzz.","I waited for you, then fell asleep."];
+var WELCOME=["You're back! I missed you.","Oh, hello! I was just dreaming.","Yay, you came back!","There you are!"];
+var AWAY_GROW={eyes:"I looked at everything while you were away and my eyes feel bigger.",arms:"I did some stretching while you were away. My arms feel stronger.",legs:"I practised hopping while you were away.",aura:"I glowed softly to myself while you were away.",colour:"I soaked up some sunshine while you were away and my colours deepened.",pattern:"I looked at my own pattern while you were away. It looks clearer now."};
+function pick(a){return a[Math.floor(Math.random()*a.length)];}
+function norm(c){
+  c.log=c.log||[];c.hist=c.hist||[];c.vis=c.vis||[];c.awayN=c.awayN||{};c.cl=c.cl||{};
+  if(!c.care)c.care={feed:{n:CFG.CARE,t:Date.now()},play:{n:CFG.CARE,t:Date.now()}};
+  if(!c.lastSeen)c.lastSeen=Date.now();
+  if(!c.dp)c.dp={d:0,p:[]};
+  if(!c.gen)c.gen=1;
+  if(c.log.length>300)c.log=c.log.slice(-300);
+}
+function plog(e,d){
+  G.plog=G.plog||[];var o={t:Date.now(),e:e};if(d)o.d=d;
+  G.plog.push(o);if(G.plog.length>600)G.plog.shift();
+}
+function chargeInfo(c,k){
+  var o=c.care[k],now=Date.now(),n=o.n,t=o.t;
+  if(n<CFG.CARE){var add=Math.floor((now-t)/CFG.REGEN);n=Math.min(CFG.CARE,n+add);t=n>=CFG.CARE?now:t+add*CFG.REGEN;}
+  return {n:n,t:t,next:n<CFG.CARE?t+CFG.REGEN:0};
+}
+function doCare(kind){
+  var c=G.c;if(!c||G.phase!=="home")return;norm(c);
+  var info=chargeInfo(c,kind),now=Date.now();
+  if(!G.fast&&info.n<1)return;
+  if(!G.fast)c.care[kind]={n:info.n-1,t:info.n>=CFG.CARE?now:info.t};
+  c.sleep=false;G.welcome=null;c.lastSeen=now;
+  var key=kind==="feed"?"colour":"legs";
+  if(c.stage<4)c.n[key]=clamp(c.n[key]+CFG.NUDGE*CFG.CARENUDGE*BLOBS[c.blob].mult[key]);
+  var ds=dayStart(now);
+  if(c.cl[kind]!==ds){c.cl[kind]=ds;c.log.push({t:now,k:"care",x:pick(kind==="feed"?FEED_LOG:PLAY_LOG)});}
+  plog(kind,{s:c.stage});
+  sayNext=pick(kind==="feed"?FEED_SAY:PLAY_SAY);popNext=true;
+  save();render();
+}
+function noteVisit(){
+  var c=G.c;if(!c||G.phase!=="home")return;
+  norm(c);
+  var now=Date.now(),gap=now-c.lastSeen;
+  if(gap<CFG.VISIT)return;                 // same visit
+  plog("open");
+  c.vis.push(now);if(c.vis.length>60)c.vis.shift();
+  var lines=[];
+  if(gap>=CFG.AWAY){
+    c.sleep=true;
+    lines.push(pick(AWAY_SLEEP));
+    var sk="s"+c.stage;
+    if(c.stage<4&&(c.awayN[sk]||0)<CFG.AWAYCAP&&c.lastAwayDay!==dayStart(now)){
+      var mult=BLOBS[c.blob].mult;
+      var cand=KEYS.filter(function(k){return mult[k]>=1;});
+      var r=rng(c.seed*13+c.hist.length*7+c.vis.length);
+      var k=cand[Math.floor(r()*cand.length)];
+      c.n[k]=clamp(c.n[k]+CFG.NUDGE*CFG.AWAYNUDGE*mult[k]);
+      c.awayN[sk]=(c.awayN[sk]||0)+1;c.lastAwayDay=dayStart(now);
+      lines.push(AWAY_GROW[k]);
+      plog("away",{k:k});
+    }
+    lines.push(pick(WELCOME));
+  }
+  // visit rhythm: visiting in a new part of the day nudges Pattern a little
+  var part=Math.floor(new Date(now).getHours()/6),ds=dayStart(now);
+  if(c.dp.d!==ds)c.dp={d:ds,p:[]};
+  if(c.dp.p.indexOf(part)<0){c.dp.p.push(part);if(c.stage<4)c.n.pattern=clamp(c.n.pattern+CFG.NUDGE*CFG.CARENUDGE*BLOBS[c.blob].mult.pattern);}
+  c.lastSeen=now;
+  if(lines.length){G.welcome=lines;lines.forEach(function(x){c.log.push({t:now,k:"away",x:x});});}
+  save();
+}
+function dayNo(c,t){return Math.floor((dayStart(t)-dayStart(c.born))/86400000)+1;}
+function hhmm(t){var d=new Date(t);return ("0"+d.getHours()).slice(-2)+":"+("0"+d.getMinutes()).slice(-2);}
+function renderDiary(){
+  var c=G.c,items=c.log.slice().reverse().slice(0,120);
+  var h='<div class="card"><h2>'+esc(c.name)+'\'s diary</h2>'+(items.length?'':'<p class="mute">Nothing yet. Make a choice and I will write something down.</p>');
+  items.forEach(function(x){h+='<div class="entry"><span class="mute">Day '+dayNo(c,x.t)+' · '+hhmm(x.t)+'</span><div>“'+esc(x.x)+'”</div></div>';});
+  h+='<button class="btn" data-v="home">Back</button></div>';
+  main.innerHTML=h;bindNav();
+}
+
+// ---------- step 4: bonding code, play log, backup ----------
+var ALPH="0123456789ABCDEFGHJKMNPQRSTVWXYZ";
+var LIMBS=["stub","long","wings"],TOPS=["none","fluff","horns"],MUTS=["none","eyes","shimmer","rainbow"];
+function packBits(vals){var bits=[];vals.forEach(function(p){for(var i=p[1]-1;i>=0;i--)bits.push((p[0]>>i)&1);});return bits;}
+function takeBits(bits,pos,n){var v=0;for(var i=0;i<n;i++)v=v*2+bits[pos+i];return v;}
+function checksum(bits){var s=0;for(var i=0;i<bits.length;i++)s=(s*31+bits[i]*7+i+1)%251;return s;}
+function toCode(c){
+  var q=function(x){return Math.round(clamp(x)*15);};
+  var vals=[[c.blob,2]];KEYS.forEach(function(k){vals.push([q(c.n[k]),4]);});
+  vals.push([Math.max(0,LIMBS.indexOf(c.v.limb)),2],[Math.max(0,TOPS.indexOf(c.v.topper)),2],[c.v.eye==="sleepy"?1:0,1],[c.v.pat==="stripes"?1:0,1],[Math.max(0,MUTS.indexOf(c.mut)),2],[c.seed%65536,16]);
+  var bits=packBits(vals);
+  bits=bits.concat(packBits([[checksum(bits),8]]),[0,0]);
+  var out="";for(var i=0;i<12;i++)out+=ALPH.charAt(takeBits(bits,i*5,5));
+  return "SQ-"+out.slice(0,4)+"-"+out.slice(4,8)+"-"+out.slice(8,12);
+}
+function fromCode(str){
+  var t=String(str||"").toUpperCase().replace(/[^0-9A-Z]/g,"").replace(/[IL]/g,"1").replace(/O/g,"0").replace(/U/g,"V");
+  if(t.length===14&&t.slice(0,2)==="SQ")t=t.slice(2);
+  if(t.length!==12)return null;
+  var bits=[];
+  for(var i=0;i<12;i++){var v=ALPH.indexOf(t.charAt(i));if(v<0)return null;for(var b=4;b>=0;b--)bits.push((v>>b)&1);}
+  if(checksum(bits.slice(0,50))!==takeBits(bits,50,8))return null;
+  var g={blob:takeBits(bits,0,2),n:{},v:{},mut:"none",seed:0},pos=2;
+  KEYS.forEach(function(k){g.n[k]=takeBits(bits,pos,4)/15;pos+=4;});
+  var li=takeBits(bits,26,2),to=takeBits(bits,28,2);
+  if(li>2||to>2)return null;
+  g.v={limb:LIMBS[li],topper:TOPS[to],eye:takeBits(bits,30,1)?"sleepy":"round",pat:takeBits(bits,31,1)?"stripes":"spots"};
+  g.mut=MUTS[takeBits(bits,32,2)];g.seed=takeBits(bits,34,16);
+  return g;
+}
+function hs(str){var h=5381;for(var i=0;i<str.length;i++)h=((h<<5)+h+str.charCodeAt(i))>>>0;return h;}
+function geneObj(c){return fromCode(toCode(c));}
+function bond(fr){
+  var me=G.c,mg=geneObj(me),mc=toCode(me),fc=toCode({blob:fr.blob,n:fr.n,v:fr.v,mut:fr.mut,seed:fr.seed});
+  var order=mc<fc?[mg,fr]:[fr,mg];
+  var r=rng(hs([mc,fc].sort().join("|")));
+  var blob=order[r()<0.5?0:1].blob;
+  var egg=makeCreature(blob,[],Math.floor(r()*100000),"This egg came from your "+BLOBS[me.blob].name+" and a friend's "+BLOBS[fr.blob].name+". It takes after the "+BLOBS[blob].name+".");
+  KEYS.forEach(function(k){var avg=(mg.n[k]+fr.n[k])/2;egg.n[k]=clamp(BASE[k]+0.25*(avg-BASE[k]));});
+  egg.inh={};
+  ["limb","topper","eye","pat"].forEach(function(slot){var v=order[r()<0.5?0:1].v[slot];if(v!=="stub"&&v!=="none")egg.inh[slot]=v;});
+  egg.mutBoost=(mg.mut!=="none"||fr.mut!=="none")?2:1;
+  egg.gen=(me.gen||1)+1;
+  G.keep=G.keep||[];G.keep.push({c:me});
+  plog("bond",{a:me.blob,b:fr.blob,g:egg.gen});
+  G.c=egg;G.phase="reveal";G.playHatch=true;G.pending=null;G.welcome=null;VIEW="home";
+  save();render();
+}
+function copyText(txt,done){
+  function fb(){var ta=document.createElement("textarea");ta.value=txt;ta.style.position="fixed";ta.style.opacity="0";document.body.appendChild(ta);ta.select();try{document.execCommand("copy");}catch(e){}document.body.removeChild(ta);done&&done();}
+  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(txt).then(function(){done&&done();},fb);else fb();
+}
+function shareText(txt,done){
+  if(navigator.share){navigator.share({text:txt}).catch(function(){});}
+  else copyText(txt,done);
+}
+function renderBond(){
+  var c=G.c,h="";
+  if(c.stage<4){
+    h='<div class="card"><h2>Bonding</h2><p>Bonding unlocks when '+esc(c.name)+' is grown up. Then you swap codes with a friend and hatch a new egg with genes from both.</p><button class="btn" data-v="home">Back</button></div>';
+  } else {
+    var code=toCode(c);
+    h='<div class="card"><h2>Bonding</h2><p>Swap codes with a friend. A code holds '+esc(c.name)+'\'s genes only: no names, no personal details.</p>'+
+      '<p class="mute" style="margin-bottom:4px">Your code</p><div class="code">'+code+'</div>'+
+      '<div class="two"><button class="btn alt" id="cpy">Copy</button><button class="btn alt" id="shr">Share</button></div>'+
+      '<p class="mute" style="margin:16px 0 2px">A friend\'s code</p><input type="text" id="frc" placeholder="SQ-XXXX-XXXX-XXXX" autocomplete="off" autocapitalize="characters" aria-label="Friend code" value="'+esc(G.dev&&G.testCode?G.testCode:"")+'">'+
+      '<button class="btn" id="hatch">Hatch a new egg</button><p class="mute" id="bmsg" style="min-height:1.4em"></p>'+
+      '<p class="mute">Hatching starts a new life. '+esc(c.name)+' moves to your keepsakes.</p></div>'+
+      '<button class="btn alt" data-v="home">Back</button>';
+  }
+  if(G.keep&&G.keep.length){
+    h+='<div class="card"><h2>Keepsakes</h2>';
+    G.keep.forEach(function(k,i){var o=k.c,B=BLOBS[o.blob];
+      h+='<div class="keep"><div class="mini">'+drawCreature(o.blob,o.n,o.stage,o.v,o.mut,o.seed,"k"+i)+'</div><div><b>'+esc(o.name)+'</b><br><span class="badge">'+esc(B.name)+'</span><span class="badge">Gen '+(o.gen||1)+'</span></div></div>';});
+    h+='</div>';
+  }
+  main.innerHTML=h;bindNav();
+  if(c.stage>=4){
+    var code2=toCode(c),msg=function(t){$("#bmsg").textContent=t;};
+    $("#cpy").addEventListener("click",function(){copyText(code2,function(){msg("Copied.");});});
+    $("#shr").addEventListener("click",function(){shareText("My Squishle One bonding code: "+code2,function(){msg("Copied.");});});
+    $("#hatch").addEventListener("click",function(){
+      var raw=$("#frc").value,fr=fromCode(raw);
+      if(!fr){msg("That code does not look right. Check it and try again.");return;}
+      if(toCode({blob:fr.blob,n:fr.n,v:fr.v,mut:fr.mut,seed:fr.seed})===code2||String(raw).toUpperCase().replace(/[^0-9A-Z]/g,"").slice(-12)===code2.replace(/[^0-9A-Z]/g,"").slice(-12)){msg("That is your own code. Swap with a friend.");return;}
+      if(!window.confirm("Hatch a new egg? "+c.name+" will move to your keepsakes."))return;
+      bond(fr);
+    });
+  }
+}
+function reportText(){
+  var P=G.plog||[],c=G.c,L=[];
+  L.push("Squishle One test report (step 4 build)");
+  if(!P.length||!c){L.push("No activity recorded yet.");return L.join("\n");}
+  var t0=P[0].t,vis={},days={},feeds=0,plays=0,aways=0,bonds=0,adultAt=null;
+  var dn=function(t){return Math.floor((dayStart(t)-dayStart(t0))/86400000)+1;};
+  P.forEach(function(x){
+    var d=dn(x.t);days[d]=1;
+    if(x.e==="open"||x.e==="hatch")vis[d]=(vis[d]||0)+1;
+    if(x.e==="feed")feeds++;if(x.e==="play")plays++;if(x.e==="away")aways++;if(x.e==="bond")bonds++;
+    if(x.e==="grow"&&x.d&&x.d.s===4&&adultAt===null)adultAt=d;
+  });
+  var d0=new Date(t0);
+  L.push("Started: "+d0.getFullYear()+"-"+("0"+(d0.getMonth()+1)).slice(-2)+"-"+("0"+d0.getDate()).slice(-2));
+  var vd=Object.keys(vis).map(Number).sort(function(a,b){return a-b;});
+  L.push("Days with a visit: "+vd.join(", "));
+  L.push("Visits per day: "+vd.map(function(d){return "day "+d+" = "+vis[d];}).join("; "));
+  L.push("Visited on day 2: "+(vis[2]?"yes":"no")+" | day 3: "+(vis[3]?"yes":"no")+" | two or more visits in one day: "+(vd.some(function(d){return vis[d]>=2;})?"yes":"no"));
+  L.push("Reached adult: "+(adultAt!==null?"yes, on day "+adultAt:"no")+" | bonds made: "+bonds);
+  L.push("Creature: "+BLOBS[c.blob].name+", "+STAGES[c.stage]+", gen "+(c.gen||1)+", limbs "+c.v.limb+", topper "+c.v.topper+", eyes "+c.v.eye+", pattern "+c.v.pat+", mutation "+c.mut);
+  L.push("Choices "+c.hist.length+" | feeds "+feeds+" | plays "+plays+" | away boosts "+aways);
+  L.push("");L.push("Events (day, time, what):");
+  P.slice(-250).forEach(function(x){
+    var d=x.d?" "+Object.keys(x.d).map(function(k){return k+"="+x.d[k];}).join(","):"";
+    L.push("D"+dn(x.t)+" "+hhmm(x.t)+" "+x.e+d);
+  });
+  L.push("");L.push("Tester notes - would you show it to a friend, and what would you say?");
+  return L.join("\n");
+}
+function importSave(txt){
+  var o;try{o=JSON.parse(txt);}catch(e){return "That does not look like a Squishle One backup.";}
+  if(!o||o.v!==1||!o.phase)return "That does not look like a Squishle One backup.";
+  if(o.c)norm(o.c);o.keep=o.keep||[];o.plog=o.plog||[];
+  G=o;VIEW="home";save();render();return "";
+}
+function renderData(){
+  var rep=reportText();
+  main.innerHTML='<div class="card"><h2>Tester data</h2><p class="mute">This report has no names or personal details. Copy it and send it to the person running the test.</p>'+
+    '<textarea id="rep" readonly>'+esc(rep)+'</textarea>'+
+    '<div class="two"><button class="btn alt" id="rcp">Copy report</button><button class="btn alt" id="rsh">Share report</button></div><p class="mute" id="rmsg" style="min-height:1.4em"></p></div>'+
+    '<div class="card"><h2>Backup</h2><p class="mute">Save your game as text, or restore it on another device. A backup includes your creature\'s name.</p>'+
+    '<button class="btn alt" id="bshow">Show my backup</button><textarea id="bak" style="display:none" readonly></textarea>'+
+    '<div class="two" id="brow" style="display:none"><button class="btn alt" id="bcp">Copy backup</button></div>'+
+    '<p class="mute" style="margin-top:14px;margin-bottom:0">Restore from a backup</p><textarea id="imp" placeholder="Paste a backup here"></textarea>'+
+    '<button class="btn alt" id="rest">Restore</button><p class="mute" id="imsg" style="min-height:1.4em"></p></div>'+
+    '<button class="btn alt" data-v="home">Back</button>';
+  bindNav();
+  var rm=function(t){$("#rmsg").textContent=t;};
+  $("#rcp").addEventListener("click",function(){copyText(rep,function(){rm("Copied.");});});
+  $("#rsh").addEventListener("click",function(){shareText(rep,function(){rm("Copied.");});});
+  $("#bshow").addEventListener("click",function(){var b=$("#bak");b.value=JSON.stringify(G);b.style.display="block";$("#brow").style.display="flex";});
+  $("#bcp").addEventListener("click",function(){copyText($("#bak").value,function(){$("#imsg").textContent="Backup copied.";});});
+  $("#rest").addEventListener("click",function(){
+    var t=$("#imp").value.trim();if(!t){$("#imsg").textContent="Paste a backup first.";return;}
+    if(!window.confirm("Replace the game on this device with this backup?"))return;
+    var e=importSave(t);if(e)$("#imsg").textContent=e;
+  });
+}
+document.addEventListener("visibilitychange",function(){if(!document.hidden&&G.phase==="home"&&!G.pending){noteVisit();render();}});
 
 // ---------- hidden test panel (tap the title five times) ----------
 var taps=0,tapT=null;
@@ -552,6 +829,9 @@ function renderDev(){
     '<button id="dAuto">Auto-play to adult</button>'+
     '<button id="dForce">Force a mutation at next growth: '+(G.forceMut?"ON":"off")+'</button>'+
     '<select id="dRate" aria-label="Mutation chance"><option value="0.08333">Mutation 1 in 12</option><option value="0.16667">Mutation 1 in 6</option><option value="1">Mutation always</option></select>'+
+    '<button id="dAway">Pretend I was away 25h</button>'+
+    '<button id="dFriend">Make a test friend code</button>'+
+    '<button id="dLog">Show play log</button>'+
     '<button id="dRestart">Erase save and start again</button><button id="dShow">Show save data</button><button id="dClose">Close panel</button></div><pre id="dOut"></pre></div>';
   var rate=G.mutRate||CFG.MUT;
   $("#dRate").value=rate>0.5?"1":(rate<0.12?"0.08333":"0.16667");
@@ -567,11 +847,21 @@ function renderDev(){
   $("#dForce").addEventListener("click",function(){G.forceMut=!G.forceMut;save();render();});
   $("#dRate").addEventListener("change",function(e){G.mutRate=parseFloat(e.target.value);save();});
   $("#dRestart").addEventListener("click",function(){var keep=G.dev;wipe();G.dev=keep;save();render();});
+  $("#dAway").addEventListener("click",function(){var c=G.c;if(!c||G.phase!=="home")return;c.lastSeen-=25*3600*1000;c.lastAwayDay=0;noteVisit();render();});
+  $("#dFriend").addEventListener("click",function(){
+    var keep=G,seed=Math.floor(Math.random()*1e9);
+    G={v:1,phase:"home",seed:seed,answers:[Math.floor(Math.random()*4),0,0,0,0,0],c:null,dev:false,fast:true,plog:[],keep:[]};
+    G.c=makeCreature(Math.floor(Math.random()*4),[],seed,"");
+    while(G.c.stage<4)applyChoice(Math.random()<0.5?"a":"b");
+    var code=toCode(G.c);G=keep;G.testCode=code;save();VIEW="bond";render();
+  });
+  $("#dLog").addEventListener("click",function(){$("#dOut").textContent=JSON.stringify(G.plog||[]);});
   $("#dShow").addEventListener("click",function(){$("#dOut").textContent=JSON.stringify(G);});
   $("#dClose").addEventListener("click",function(){G.dev=false;save();render();});
 }
 
-window.__sq1={G:function(){return G;},pickBlob:pickBlob,VIBE:VIBE,PERS:PERS,BLOBS:BLOBS,CHOICES:CHOICES,UP_AT:UP_AT,CFG:CFG,draw:drawCreature,KEY:KEY,devLife:devLife,choiceState:choiceState,nextChoice:nextChoice,render:render};
+window.__sq1={G:function(){return G;},pickBlob:pickBlob,VIBE:VIBE,PERS:PERS,BLOBS:BLOBS,CHOICES:CHOICES,UP_AT:UP_AT,CFG:CFG,draw:drawCreature,KEY:KEY,devLife:devLife,choiceState:choiceState,nextChoice:nextChoice,render:render,toCode:toCode,fromCode:fromCode,bond:bond,doCare:doCare,noteVisit:noteVisit,chargeInfo:chargeInfo,setView:setView,reportText:reportText,importSave:importSave,setG:function(g){G=g;}};
+noteVisit();
 render();
 })();
 </script>
